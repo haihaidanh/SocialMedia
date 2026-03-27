@@ -92,7 +92,7 @@ fun DrawerContent(
             )
 
             Text(
-                text = name ?: "",
+                text = name ?: "hai",
                 modifier = Modifier.padding(16.dp),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold

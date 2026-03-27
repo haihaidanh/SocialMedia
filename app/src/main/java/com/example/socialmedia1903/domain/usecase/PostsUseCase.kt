@@ -1,0 +1,14 @@
+package com.example.socialmedia1903.domain.usecase
+
+import com.example.socialmedia1903.data.source.PostPagingSource
+import com.example.socialmedia1903.data.source.RemoteDataSource
+import com.example.socialmedia1903.domain.model.Post
+import javax.inject.Inject
+
+class PostsUseCase @Inject constructor(
+   private val pagingSource: PostPagingSource
+) {
+    suspend operator fun invoke(page: Int): List<Post>{
+        return emptyList()
+    }
+}

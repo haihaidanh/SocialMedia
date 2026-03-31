@@ -49,7 +49,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.socialmedia1903.R
 import com.example.socialmedia1903.data.dto.response.PostResponse
-import com.example.socialmedia1903.data.mapper.ReactionType
+import com.example.socialmedia1903.data.utils.ReactionType
 import com.example.socialmedia1903.presentation.screen.detailpost.PostViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

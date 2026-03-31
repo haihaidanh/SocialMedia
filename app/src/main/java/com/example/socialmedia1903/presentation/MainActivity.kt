@@ -15,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.socialmedia1903.presentation.screen.createpost.CreateNewPostScreen
 import com.example.socialmedia1903.presentation.screen.dashboard.DashboardScreen
 import com.example.socialmedia1903.presentation.screen.detailpost.DetailPostScreen
 import com.example.socialmedia1903.presentation.screen.login.LoginScreen
@@ -68,6 +69,10 @@ fun mainScreen() {
                     padding = padding,
                     navController = navController
                 )
+            }
+
+            composable("create_post") {
+                CreateNewPostScreen()
             }
 
             composable("profile") {

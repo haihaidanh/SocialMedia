@@ -1,4 +1,4 @@
-package com.example.socialmedia1903.data.mapper
+package com.example.socialmedia1903.data.utils
 
 import com.example.socialmedia1903.R
 

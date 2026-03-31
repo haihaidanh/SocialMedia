@@ -8,10 +8,9 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.example.socialmedia1903.data.dto.response.PostResponse
 import com.example.socialmedia1903.data.remote.AppService
-import com.example.socialmedia1903.data.source.LocalDataSource
+import com.example.socialmedia1903.data.local.MyPreference
 import com.example.socialmedia1903.data.source.PostPagingSource
 import com.example.socialmedia1903.data.source.RemoteDataSource
-import com.example.socialmedia1903.domain.model.Post
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val apiService: AppService,
-    private val localDataSource: LocalDataSource,
+    private val myPreference: MyPreference,
     private val remoteDataSource: RemoteDataSource
 ) : ViewModel() {
 
@@ -46,7 +45,7 @@ class DashboardViewModel @Inject constructor(
 
     fun logOut() {
         viewModelScope.launch {
-            localDataSource.clear()
+            myPreference.clear()
             remoteDataSource.logOut()
             _checkLogIn.value = true
         }
@@ -54,20 +53,20 @@ class DashboardViewModel @Inject constructor(
 
     fun getToken() {
         viewModelScope.launch {
-            _token.value = localDataSource.getAccessToken()
+            _token.value = myPreference.getAccessToken()
             _checkLogIn.value = false
         }
     }
 
     fun getName() {
         viewModelScope.launch {
-            _name.value = localDataSource.getName()
+            _name.value = myPreference.getName()
         }
     }
 
     fun getAvatar() {
         viewModelScope.launch {
-            _avatar.value = localDataSource.getAvatarUrl()
+            _avatar.value = myPreference.getAvatarUrl()
         }
     }
 

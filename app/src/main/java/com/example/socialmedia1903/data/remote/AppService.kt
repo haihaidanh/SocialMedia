@@ -14,10 +14,13 @@ import com.example.socialmedia1903.data.dto.response.PostsResponse
 import com.example.socialmedia1903.data.dto.response.RefreshTokenResponse
 import com.example.socialmedia1903.data.dto.response.SearchResponse
 import com.example.socialmedia1903.data.dto.response.SignUpResponse
+import okhttp3.MultipartBody
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -69,5 +72,11 @@ interface AppService {
     @POST("/comment-post")
     suspend fun commentPost(
         @Body commentRequest: CommentRequest
+    )
+
+    @Multipart
+    @POST("/upload")
+    suspend fun uploadImage(
+        @Part file: MultipartBody.Part
     )
 }

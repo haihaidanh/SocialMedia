@@ -3,7 +3,7 @@ package com.example.socialmedia1903.infrastructure.di
 import com.example.socialmedia1903.data.remote.AppService
 import com.example.socialmedia1903.data.remote.AuthInterceptor
 import com.example.socialmedia1903.data.remote.RefreshTokenInterceptor
-import com.example.socialmedia1903.data.source.LocalDataSource
+import com.example.socialmedia1903.data.local.MyPreference
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -47,19 +47,19 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideAuthInterceptor(
-        localDataSource: LocalDataSource
+        myPreference: MyPreference
     ): AuthInterceptor {
-        return AuthInterceptor(localDataSource)
+        return AuthInterceptor(myPreference)
     }
 
     // 🔹 RefreshTokenInterceptor
     @Provides
     @Singleton
     fun provideRefreshTokenInterceptor(
-        localDataSource: LocalDataSource,
+        myPreference: MyPreference,
         @Named("authService") authService: AppService
     ): RefreshTokenInterceptor {
-        return RefreshTokenInterceptor(localDataSource, authService)
+        return RefreshTokenInterceptor(myPreference, authService)
     }
 
     // 🔹 OkHttp (có interceptor)

@@ -30,47 +30,7 @@ data class BottomNavItem(
 )
 
 @Composable
-fun BottomBar(navController: NavController) {
-
-    val items = listOf(
-        BottomNavItem("home", "Home", Icons.Default.Home),
-        BottomNavItem("group", "Group", Icons.Default.Warning),
-        BottomNavItem("notification", "Notify", Icons.Default.Notifications),
-        BottomNavItem("profile", "Profile", Icons.Default.Person)
-    )
-
-    val navBackStackEntry = navController.currentBackStackEntryAsState().value
-    val currentRoute = navBackStackEntry?.destination?.route
-
-    NavigationBar {
-        items.forEach { item ->
-            NavigationBarItem(
-                selected = currentRoute == item.route,
-                onClick = {
-                    navController.navigate(item.route) {
-                        popUpTo(navController.graph.startDestinationId) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                },
-                icon = {
-                    Icon(
-                        imageVector = item.icon,
-                        contentDescription = item.label
-                    )
-                },
-                label = {
-                    Text(item.label)
-                }
-            )
-        }
-    }
-}
-
-@Composable
-fun CustomBottomBarWithFab(navController: NavController) {
+fun CustomBottomBarWithFab(navController: NavController, onClick: () -> Unit) {
 
     val items = listOf(
         BottomNavItem("home", "Home", Icons.Default.Home),
@@ -113,7 +73,9 @@ fun CustomBottomBarWithFab(navController: NavController) {
 
         // FAB ở giữa (lún xuống)
         FloatingActionButton(
-            onClick = { },
+            onClick = {
+               onClick()
+            },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .offset(y = (-20).dp) // chỉnh độ lún ở đây

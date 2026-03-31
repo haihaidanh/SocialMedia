@@ -126,4 +126,7 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.7.0")
 
     implementation("com.google.accompanist:accompanist-swiperefresh:0.32.0")
+    implementation("io.socket:socket.io-client:2.1.0")
+    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.1.0")
 }

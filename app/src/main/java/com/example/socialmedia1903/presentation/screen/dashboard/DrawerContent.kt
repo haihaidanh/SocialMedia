@@ -84,7 +84,7 @@ fun DrawerContent(
         ){
             AsyncImage(
                 model = avatar,
-                contentDescription = null,
+                contentDescription = "hai",
                 modifier = Modifier
                     .padding(5.dp)
                     .clip(CircleShape)

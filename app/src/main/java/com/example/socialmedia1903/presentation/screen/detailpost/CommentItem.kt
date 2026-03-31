@@ -60,11 +60,27 @@ fun CommentItem(
             )
 
             // Thời gian
-            Text(
-                text = createdAt,
-                fontSize = 12.sp,
-                color = Color.Gray
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = createdAt.split(Regex("\\s+"))[0],
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                )
+                Text(
+                    text = "like",
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                )
+                Text(
+                    text = "reply",
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                )
+            }
         }
     }
 }

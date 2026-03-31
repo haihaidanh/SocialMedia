@@ -1,5 +1,6 @@
 package com.example.socialmedia1903.data.source
 
+import com.example.socialmedia1903.data.dto.request.CommentRequest
 import com.example.socialmedia1903.data.dto.request.LikeRequest
 import com.example.socialmedia1903.data.dto.request.LogInRequest
 import com.example.socialmedia1903.data.dto.request.SignUpRequest
@@ -38,5 +39,13 @@ class RemoteDataSource @Inject constructor(
 
     suspend fun getAllComments(postId: String): List<CommentResponse>{
         return appService.getAllComment(postId, "all").comments
+    }
+
+    suspend fun logOut(){
+        appService.logOut()
+    }
+
+    suspend fun commentPost(postId: String, parentId: String?, content: String){
+        appService.commentPost(CommentRequest(postId, parentId, content))
     }
 }

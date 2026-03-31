@@ -1,5 +1,6 @@
 package com.example.socialmedia1903.data.remote
 
+import com.example.socialmedia1903.data.dto.request.CommentRequest
 import com.example.socialmedia1903.data.dto.request.LikeRequest
 import com.example.socialmedia1903.data.dto.request.LogInRequest
 import com.example.socialmedia1903.data.dto.request.SignUpRequest
@@ -64,4 +65,9 @@ interface AppService {
 
     @GET("/log-out")
     suspend fun logOut()
+
+    @POST("/comment-post")
+    suspend fun commentPost(
+        @Body commentRequest: CommentRequest
+    )
 }

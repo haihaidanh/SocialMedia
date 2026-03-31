@@ -1,0 +1,4 @@
+package com.example.socialmedia1903.presentation.screen.profile
+
+class ProfileViewModel {
+}

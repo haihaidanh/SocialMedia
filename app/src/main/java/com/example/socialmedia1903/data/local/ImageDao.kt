@@ -10,8 +10,8 @@ interface ImageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertImage(image: ImageEntity)
 
-    @Query("SELECT * FROM images WHERE postId = :postId")
-    suspend fun getImagesByPostId(postId: String): List<ImageEntity>
+    @Query("SELECT * FROM images")
+    suspend fun getImages(): List<ImageEntity>
 
     @Query("DELETE FROM images")
     suspend fun deleteAllImages()

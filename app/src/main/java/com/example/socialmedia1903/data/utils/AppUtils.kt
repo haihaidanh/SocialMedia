@@ -15,7 +15,7 @@ object AppUtils {
         val requestBody = bytes.toRequestBody("image/*".toMediaTypeOrNull())
 
         return MultipartBody.Part.createFormData(
-            "file", // 👈 phải trùng req.file
+            "images", // 👈 phải trùng req.file
             "image.jpg",
             requestBody
         )

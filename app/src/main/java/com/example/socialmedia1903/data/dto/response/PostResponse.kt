@@ -18,5 +18,6 @@ data class PostResponse(
     val updatedAt: Date = Date(),
     val User: UserResponse = UserResponse(),
     val Comments: List<CommentResponse> = emptyList(),
-    val Likes: List<LikeResponse> = emptyList()
+    val Likes: List<LikeResponse> = emptyList(),
+    val Media: List<ImageResponse> = emptyList()
 )

@@ -1,10 +1,13 @@
 package com.example.socialmedia1903.presentation.screen.createpost
 
 import android.net.Uri
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,15 +26,13 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Slider
-import androidx.compose.material3.Switch
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,26 +42,65 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.socialmedia1903.R
+import com.example.socialmedia1903.presentation.screen.dashboard.DashboardViewModel
+import java.util.UUID
 
 @Composable
 fun CreateNewPostScreen(
-    userName: String="hai",
-    avatarUrl: String="",
-    onDismiss: () -> Unit={},
-    onSubmit: (String, Boolean, List<Uri>) -> Unit={ _, _, _ -> },
-    createPostViewModel: CreatePostViewModel = hiltViewModel()
+    createPostViewModel: CreatePostViewModel = hiltViewModel(),
+    dashboardViewModel: DashboardViewModel = hiltViewModel(),
+    navController: NavController,
+    groupId: String? = null
 ) {
+
+    LaunchedEffect(Unit) {
+        dashboardViewModel.getAvatar()
+    }
+
+    LaunchedEffect(Unit) {
+        dashboardViewModel.getName()
+    }
+
+    val avatarUrl by dashboardViewModel.avatar.collectAsState()
+    val userName by dashboardViewModel.name.collectAsState()
+
+
+
     var content by remember { mutableStateOf("") }
-    var isAnonymous by remember { mutableStateOf(false) }
-    var selectedImages by remember { mutableStateOf<List<Uri>>(emptyList()) }
+    var selectedImages by remember { mutableStateOf<List<String>>(emptyList()) }
+    val context = LocalContext.current
+    val isSaveToRoom by createPostViewModel.isSaveToRoom.collectAsState()
+    val isSavePost by createPostViewModel.isSavePost.collectAsState()
+
+    LaunchedEffect(isSavePost) {
+        if(isSavePost){
+            Toast.makeText(context, "Post created successfully!", Toast.LENGTH_SHORT).show()
+            navController.popBackStack()
+        }
+    }
+
+    Log.d("hai", isSavePost.toString())
+
+    var postType by remember { mutableStateOf("text") }
+
+    if(selectedImages.isNotEmpty()){
+        postType = "image"
+    }
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents()
     ) { uris ->
-        selectedImages = uris
+        selectedImages = uris.map { it.toString() }
+        uris.forEach { uri ->
+            createPostViewModel.saveImageUri(uri.toString())
+        }
     }
 
     Column(
@@ -71,6 +111,18 @@ fun CreateNewPostScreen(
 
         // Header
         Row(verticalAlignment = Alignment.CenterVertically) {
+
+            Image(
+                painter = painterResource(R.drawable.baseline_arrow_back_ios_new_24),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable {
+                        createPostViewModel.clearAllImages()
+                        navController.popBackStack()
+                    }
+            )
+
             AsyncImage(
                 model = avatarUrl,
                 contentDescription = null,
@@ -81,7 +133,7 @@ fun CreateNewPostScreen(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            Text(text = userName)
+            Text(text = userName ?: "User")
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -93,7 +145,12 @@ fun CreateNewPostScreen(
             placeholder = { Text("Bạn đang nghĩ gì?") },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(120.dp)
+                .height(120.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color.Transparent,
+                unfocusedBorderColor = Color.Transparent,
+                disabledBorderColor = Color.Transparent
+            )
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -138,9 +195,25 @@ fun CreateNewPostScreen(
             horizontalArrangement = Arrangement.End
         ) {
             Button(onClick = {
-                onSubmit(content, isAnonymous, selectedImages)
-            }) {
-                Text("Đăng")
+                if(isSaveToRoom){
+                    val posId = UUID.randomUUID().toString()
+                    createPostViewModel.createPost(
+                        postId = posId,
+                        content = content,
+                        type = postType,
+                        groupId = groupId,
+                        contentType = "plain",
+                        anonymous = false,
+                        visibility = "public",
+                        context = context
+                    )
+
+                    //createPostViewModel.clearAllImages()
+                    //navController.popBackStack()
+                }
+            },
+                enabled = isSaveToRoom) {
+                Text("Post")
             }
         }
     }
@@ -148,7 +221,7 @@ fun CreateNewPostScreen(
 
 @Composable
 fun ImageSlider(
-    images: List<Uri>
+    images: List<String>
 ) {
     val pagerState = rememberPagerState(pageCount = { images.size })
 

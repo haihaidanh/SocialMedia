@@ -1,5 +1,6 @@
 package com.example.socialmedia1903.presentation.screen.login
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -110,5 +111,13 @@ fun LoginScreen(
         ) {
             Text("Đăng nhập")
         }
+        Text(
+            text = "Tạo tài khoản",
+            fontSize = 16.sp,
+            modifier = Modifier
+                .clickable {
+                    navController.navigate("signup")
+                }
+        )
     }
 }

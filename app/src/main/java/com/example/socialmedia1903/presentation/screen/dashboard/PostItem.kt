@@ -11,12 +11,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -50,6 +52,7 @@ import coil.compose.AsyncImage
 import com.example.socialmedia1903.R
 import com.example.socialmedia1903.data.dto.response.PostResponse
 import com.example.socialmedia1903.data.utils.ReactionType
+import com.example.socialmedia1903.presentation.screen.createpost.ImageSlider
 import com.example.socialmedia1903.presentation.screen.detailpost.PostViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -64,12 +67,12 @@ fun PostItem(
 
     var likeCount by remember { mutableStateOf(post.likeCount) }
     //Log.d("hai", post.type)
-    val icon = if(post.Likes.isNotEmpty()){
-        ReactionType.entries.find {it.title == post.Likes[0].type }?.icon
+    val icon = if (post.Likes.isNotEmpty()) {
+        ReactionType.entries.find { it.title == post.Likes[0].type }?.icon
     } else {
         R.drawable.like
     }
-    var likeIcon by remember { mutableStateOf(icon)}
+    var likeIcon by remember { mutableStateOf(icon) }
     var isLike by remember { mutableStateOf(if (post.Likes.isEmpty()) false else true) }
     var commentCount by remember { mutableStateOf(post.commentCount) }
     var shareCount by remember { mutableStateOf(post.sharedCount) }
@@ -90,9 +93,10 @@ fun PostItem(
         )
     ) {
         Column(
-            modifier = Modifier.padding(12.dp)
+            modifier = Modifier
+                .padding(12.dp)
                 .clickable {
-                    if(showReactions){
+                    if (showReactions) {
                         showReactions = false
                     }
                 }
@@ -126,44 +130,54 @@ fun PostItem(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Content
-            if (post.content.isNotEmpty() && post.type == "media") {
-                Text(
-                    text = post.content,
-                    fontSize = 16.sp
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
 
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
-                    .background(Color.Gray)
+                    .height(300.dp)
             ) {
-                if (post.type == "media") {
+                if (post.type == "image") {
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                    ) {
+                        Text(
+                            text = post.content,
+                            fontSize = 14.sp,
+                            modifier = Modifier
+                                .padding(20.dp),
+                            color = Color.Black
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Log.d("hai", "Images: " + post.Media.map { it.url }.toString())
+
+                        ImageSlider(
+                            images = post.Media.map { it.url }
+                        )
+                    }
+                } else {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(200.dp)
-                            .background(Color.LightGray),
-                        contentAlignment = Alignment.Center
+                            .fillMaxHeight()
+                            .background(Color.DarkGray)
                     ) {
-                        Text("Media Preview")
+                        Text(
+                            text = post.content,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .padding(20.dp)
+                                .align(Alignment.Center),
+                            color = Color.White
+                        )
                     }
-                } else {
-                    Text(
-                        text = post.content,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .padding(20.dp)
-                            .align(Alignment.Center),
-                        color = Color.White
-                    )
-                }
 
+
+                }
                 if (showReactions) {
                     Row(
                         modifier = Modifier
@@ -233,13 +247,14 @@ fun PostItem(
                                     // click nhanh: Like
                                     isLike = !isLike
                                     likeCount += if (isLike) 1 else -1
-                                    likeIcon = if (isLike) R.drawable.like_done else R.drawable.like
+                                    likeIcon =
+                                        if (isLike) R.drawable.like_done else R.drawable.like
                                     likeJob?.cancel()
                                     likeJob = scope.launch {
                                         delay(1000)
-                                        if(isLike){
+                                        if (isLike) {
                                             postViewModel.likePost(post.id, "like")
-                                        }else{
+                                        } else {
                                             postViewModel.likePost(post.id, "unlike")
                                         }
 
@@ -269,10 +284,10 @@ fun PostItem(
 
                 // Comment button
                 TextButton(onClick = {
-                    if(post.id.isNotBlank()){
-                        Log.d("hai", "ahi"+ post.id)
+                    if (post.id.isNotBlank()) {
+                        Log.d("hai", "ahi" + post.id)
                         navController.navigate("detail/${post.id}")
-                    }else{
+                    } else {
                         Toast.makeText(context, "Post không hợp lệ", Toast.LENGTH_SHORT).show()
                     }
                 }) {

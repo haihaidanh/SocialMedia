@@ -2,21 +2,15 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "43751234ccd144f406e732fc9bc2706a",
+    "identityHash": "26d11363cf2ffc2196dab895efa25234",
     "entities": [
       {
         "tableName": "images",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uri` TEXT NOT NULL, `postId` TEXT NOT NULL, PRIMARY KEY(`uri`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uri` TEXT NOT NULL, PRIMARY KEY(`uri`))",
         "fields": [
           {
             "fieldPath": "uri",
             "columnName": "uri",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "postId",
-            "columnName": "postId",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -34,7 +28,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '43751234ccd144f406e732fc9bc2706a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '26d11363cf2ffc2196dab895efa25234')"
     ]
   }
 }

@@ -7,13 +7,13 @@ import javax.inject.Inject
 class LocalDataSource @Inject constructor(
     private val imageDao: ImageDao
 ) {
-    suspend fun insertImage(uri: String, postId: String) {
-        val imageEntity = ImageEntity(uri, postId)
+    suspend fun insertImage(uri: String) {
+        val imageEntity = ImageEntity(uri)
         imageDao.insertImage(imageEntity)
     }
 
-    suspend fun getImagesByPostId(postId: String): List<ImageEntity> {
-        return imageDao.getImagesByPostId(postId)
+    suspend fun getImages(): List<ImageEntity> {
+        return imageDao.getImages()
     }
 
     suspend fun deleteAllImages() {

@@ -14,14 +14,14 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.*
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 
 data class BottomNavItem(
     val route: String,
@@ -36,7 +36,7 @@ fun CustomBottomBarWithFab(navController: NavController, onClick: () -> Unit) {
         BottomNavItem("home", "Home", Icons.Default.Home),
         BottomNavItem("group", "Group", Icons.Default.Warning),
         BottomNavItem("notification", "Notify", Icons.Default.Notifications),
-        BottomNavItem("profile", "Profile", Icons.Default.Person)
+        BottomNavItem("my-profile", "My Profile", Icons.Default.Person)
     )
 
     Box {

@@ -77,7 +77,9 @@ fun DashboardScreen(
             topBar = {
                 Header(
                     drawerOnClick = { scope.launch { drawerState.open() } },
-                    searchOnClick = { /* TODO */ }
+                    searchOnClick = {
+                        navController.navigate("search")
+                    }
                 )
             },
             bottomBar = {

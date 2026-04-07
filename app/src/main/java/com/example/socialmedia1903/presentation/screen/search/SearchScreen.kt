@@ -1,8 +1,8 @@
 package com.example.socialmedia1903.presentation.screen.search
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,10 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -28,62 +26,32 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.socialmedia1903.domain.model.User
+import coil.decode.ImageSource
+import com.example.socialmedia1903.R
+import com.example.socialmedia1903.presentation.screen.profile.InvitationViewModel
+import com.example.socialmedia1903.presentation.screen.profile.ProfileViewModel
 import kotlinx.coroutines.delay
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
-@Composable
-fun UserItem(
-    user: User,
-    onClick: () -> Unit = {}
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                onClick()
-            }
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-
-        // Avatar giả
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .background(Color.Gray, CircleShape)
-        )
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Column {
-            Text(
-                text = user.name,
-                fontWeight = FontWeight.Bold
-            )
-//            Text(
-//                text = user.email,
-//                fontSize = 12.sp,
-//                color = Color.Gray
-//            )
-        }
-    }
-}
 
 @Composable
 fun SearchScreen(
     viewModel: SearchViewModel = hiltViewModel(),
-    navController: NavController
-){
+    invitationViewModel: InvitationViewModel = hiltViewModel(),
+    navController: NavController,
+) {
     val query = viewModel.text.collectAsState().value
     val users = viewModel.users.collectAsState().value
 
@@ -101,37 +69,62 @@ fun SearchScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-
-        // 🔍 Search bar
-        OutlinedTextField(
-            value = query,
-            onValueChange = {
-                    viewModel.onQueryChange(it)
-            },
-            modifier = Modifier.fillMaxWidth()
-                .focusRequester(focusRequester),
-            placeholder = { Text("Tìm kiếm...") },
-            singleLine = true,
-            leadingIcon = {
-                Icon(Icons.Default.Search, contentDescription = null)
-            },
-            keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Done // 🔹 Gán nút Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    // 🔹 Ẩn bàn phím
-                    keyboardController?.hide()
-                    // 🔹 Chuyển sang screen khác
-                    navController.navigate("result_screen") // truyền query nếu cần
-                }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Image(
+                painter = painterResource(R.drawable.baseline_arrow_back_ios_new_24),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(30.dp)
+                    .clickable {
+                        navController.popBackStack()
+                    }
             )
 
-        )
+            OutlinedTextField(
+                value = query,
+                onValueChange = {
+                    viewModel.onQueryChange(it)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
+                placeholder = { Text("Tìm kiếm...") },
+                singleLine = true,
+                leadingIcon = {
+                    Icon(Icons.Default.Search, contentDescription = null)
+                },
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Done // 🔹 Gán nút Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        keyboardController?.hide()
+                        val encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8.toString())
+                        navController.navigate("result_screen?query=${encodedQuery}")
+                    }
+                )
+
+            )
+
+            Image(
+                painter = painterResource(R.drawable.angry),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(30.dp)
+                    .clickable {
+                        keyboardController?.hide()
+                        val encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8.toString())
+                        navController.navigate("result_screen?query=${encodedQuery}")
+                    }
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        // 🔹 Title
         if (query.isNotEmpty() && users.isNotEmpty()) {
             Text(
                 text = "Mọi người",
@@ -145,7 +138,15 @@ fun SearchScreen(
         // 🔹 List user
         LazyColumn {
             items(users) { user ->
-                UserItem(user)
+                searchUserItem(
+                    user,
+                    onClick = {
+                        navController.navigate("profile/${user.id}")
+                    },
+                    addFriendAction = {
+                        invitationViewModel.addFriend(user.id)
+                    }
+                )
             }
         }
     }

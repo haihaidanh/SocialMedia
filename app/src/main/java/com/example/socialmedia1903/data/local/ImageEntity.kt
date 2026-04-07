@@ -7,6 +7,5 @@ import java.util.Date
 @Entity(tableName = "images")
 data class ImageEntity(
     @PrimaryKey
-    val uri: String,
-    val postId: String
+    val uri: String
 )

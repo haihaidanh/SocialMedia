@@ -1,0 +1,44 @@
+package com.example.socialmedia1903.domain.usecase
+
+import android.content.Context
+import androidx.core.net.toUri
+import com.example.socialmedia1903.data.source.LocalDataSource
+import com.example.socialmedia1903.data.source.RemoteDataSource
+import java.util.UUID
+import javax.inject.Inject
+
+class CreatePostUseCase @Inject constructor(
+    private val remoteDataSource: RemoteDataSource,
+    private val localDataSource: LocalDataSource
+) {
+    suspend operator fun invoke(
+        postId: String,
+        content: String,
+        type: String,
+        groupId: String?,
+        contentType: String,
+        anonymous: Boolean,
+        visibility: String,
+    ) : Boolean{
+        return remoteDataSource.createPost(
+            postId = postId,
+            content = content,
+            type = type,
+            groupId = groupId,
+            contentType = contentType,
+            anonymous = anonymous,
+            visibility = visibility
+        )
+    }
+
+    suspend fun uploadFile(context: Context,postId: String) : Boolean{
+        return try{
+            val images = localDataSource.getImages().map{ it.uri.toUri() }
+            remoteDataSource.uploadImage(images, context, postId)
+        }catch (e: Exception){
+            e.printStackTrace()
+            false
+        }
+
+    }
+}

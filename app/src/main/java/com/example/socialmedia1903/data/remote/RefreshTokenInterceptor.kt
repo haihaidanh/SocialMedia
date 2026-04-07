@@ -1,11 +1,11 @@
 package com.example.socialmedia1903.data.remote
 
-import com.example.socialmedia1903.data.source.LocalDataSource
+import com.example.socialmedia1903.data.local.MyPreference
 import okhttp3.Interceptor
 import okhttp3.Response
 
 class RefreshTokenInterceptor(
-    private val localDataSource: LocalDataSource,
+    private val myPreference: MyPreference,
     private val apiService: AppService
 ) : Interceptor {
 
@@ -28,7 +28,7 @@ class RefreshTokenInterceptor(
                     return chain.proceed(newRequest)
                 } else {
                     // refresh fail → logout
-                    localDataSource.clear()
+                    myPreference.clear()
                 }
             }
         }
@@ -38,7 +38,7 @@ class RefreshTokenInterceptor(
 
     private fun refreshToken(): String? {
         return try {
-            val refreshToken = localDataSource.getRefreshToken() ?: return null
+            val refreshToken = myPreference.getRefreshToken() ?: return null
 
             val response = apiService.refreshToken(
                 mapOf("refreshToken" to refreshToken)

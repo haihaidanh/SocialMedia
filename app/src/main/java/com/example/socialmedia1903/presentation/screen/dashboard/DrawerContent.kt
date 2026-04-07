@@ -112,17 +112,17 @@ fun DrawerContent(
             Divider()
 
             // 🔹 Item
-            DrawerItem("Home") {
-                navController.navigate("home")
+            DrawerItem("Tạo nhóm") {
+                navController.navigate("create-group")
                 scope.launch { drawerState.close() }
             }
 
-            DrawerItem("Profile") {
-                navController.navigate("profile")
+            DrawerItem("Nhóm của tôi") {
+                navController.navigate("my-group")
                 scope.launch { drawerState.close() }
             }
 
-            DrawerItem("Settings") {
+            DrawerItem("Cài đặt") {
                 navController.navigate("settings")
                 scope.launch { drawerState.close() }
             }

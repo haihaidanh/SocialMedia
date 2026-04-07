@@ -2,9 +2,8 @@ package com.example.socialmedia1903.presentation.screen.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.socialmedia1903.data.dto.response.LogInResponse
 import com.example.socialmedia1903.data.model.ErrLogIn
-import com.example.socialmedia1903.data.source.LocalDataSource
+import com.example.socialmedia1903.data.local.MyPreference
 import com.example.socialmedia1903.domain.usecase.LogInUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LogInViewModel @Inject constructor(
     private val logInUseCase: LogInUseCase,
-    private val localDataSource: LocalDataSource
+    private val myPreference: MyPreference
 ): ViewModel() {
     private val _loading = MutableStateFlow(true)
     val loading: StateFlow<Boolean> = _loading
@@ -39,7 +38,7 @@ class LogInViewModel @Inject constructor(
     }
 
     fun isLoggedIn(): Boolean {
-        return localDataSource.getAccessToken() != null
+        return myPreference.getAccessToken() != null
     }
 
 }

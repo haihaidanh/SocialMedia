@@ -1,6 +1,5 @@
 package com.example.socialmedia1903.presentation.screen.search
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,11 +25,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.socialmedia1903.data.dto.response.SearchItemResponse
-import com.example.socialmedia1903.data.utils.InvitationStatus
+import com.example.socialmedia1903.domain.enums.InvitationStatus
+import com.example.socialmedia1903.domain.model.SearchItem
 
 @Composable
 fun searchUserItem(
-    user: SearchItemResponse,
+    user: SearchItem,
     onClick: () -> Unit = {},
     addFriendAction: () -> Unit = {}
 ) {

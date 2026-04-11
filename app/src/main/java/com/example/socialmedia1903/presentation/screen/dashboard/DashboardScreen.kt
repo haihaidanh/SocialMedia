@@ -1,13 +1,17 @@
 package com.example.socialmedia1903.presentation.screen.dashboard
 
+import android.util.Log
+import androidx.annotation.OptIn
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DrawerValue
@@ -19,18 +23,36 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.common.VideoSize
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.AspectRatioFrameLayout
+import androidx.media3.ui.PlayerView
 import androidx.navigation.NavController
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
+import com.example.socialmedia1903.R
 import com.example.socialmedia1903.data.dto.response.PostResponse
-import com.example.socialmedia1903.presentation.screen.createpost.CreatePostViewModel
+import com.example.socialmedia1903.domain.model.Post
+import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItem
+import com.example.socialmedia1903.presentation.screen.story.AddStoryItem
+import com.example.socialmedia1903.presentation.screen.story.StoryViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.launch
@@ -38,7 +60,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun DashboardScreen(
     dashboardViewModel: DashboardViewModel = hiltViewModel(),
-    createPostViewModel: CreatePostViewModel = hiltViewModel(),
+    storyViewModel: StoryViewModel = hiltViewModel(),
     navController: NavController,
     padding: PaddingValues
 ) {
@@ -57,11 +79,19 @@ fun DashboardScreen(
         }
     }
 
+//    LaunchedEffect(Unit) {
+//        storyViewModel.getStories()
+//    }
+//
+//    val stories by storyViewModel.stories.collectAsState()
+//    //Log.d("hai", stories.size.toString())
+
     LaunchedEffect(Unit) {
         dashboardViewModel.getAvatar()
     }
 
-    val posts: LazyPagingItems<PostResponse> = dashboardViewModel.posts.collectAsLazyPagingItems()
+    val posts: LazyPagingItems<Post> = dashboardViewModel.posts.collectAsLazyPagingItems()
+    Log.d("hai", "Posts count: ${posts.itemCount}")
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val avatar by dashboardViewModel.avatar.collectAsState()
@@ -102,6 +132,39 @@ fun DashboardScreen(
                     .fillMaxSize()
                     .padding(padding)) {
 
+                    item{
+                        LazyRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ) {
+                            item {
+                                AddStoryItem(
+                                    avatarUrl = avatar ?: "",
+                                    onAddClick = {
+                                        navController.navigate("open-camera")
+                                    },
+                                    modifier = Modifier
+                                        .padding(vertical = 10.dp)
+                                        .padding(start = 10.dp)
+                                )
+                            }
+//                            if(stories.isNotEmpty()){
+//                                items(stories){ story ->
+//                                    StoryItem(
+//                                        avatarUrl = story.user.avatarUrl,
+//                                        thumbnail = story.thumbnail,
+//                                        onClick = {
+//                                        },
+//                                        modifier = Modifier
+//                                            .padding(10.dp)
+//                                    )
+//                                }
+//                            }
+
+                        }
+
+                    }
+
                     item {
                         createPostScreen(
                             onCreatePost = { navController.navigate("create_post") },
@@ -111,12 +174,11 @@ fun DashboardScreen(
                         )
                     }
 
+
                     items(count = posts.itemCount) { index ->
                         val post = posts[index]
                         post?.let { PostItem(it, navController = navController) }
                     }
-
-                    // Load state thêm
                     posts.apply {
                         when {
                             loadState.append is androidx.paging.LoadState.Loading -> {
@@ -159,8 +221,48 @@ fun createPostScreen(
             modifier = Modifier
                 .padding(start = 10.dp)
                 .size(30.dp)
-                .clip(CircleShape)
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop
         )
         Text(text = "What are you thinking?..")
     }
+}
+
+@OptIn(UnstableApi::class)
+@Composable
+fun VideoPlayer(videoUrl: String) {
+    val context = LocalContext.current
+
+    var aspectRatio by remember { mutableStateOf(16f / 9f) } // mặc định ngang
+
+    val exoPlayer = remember {
+        ExoPlayer.Builder(context).build().apply {
+            setMediaItem(MediaItem.fromUri(videoUrl))
+            prepare()
+            playWhenReady = false
+
+            addListener(object : Player.Listener {
+                override fun onVideoSizeChanged(videoSize: VideoSize) {
+                    val width = videoSize.width
+                    val height = videoSize.height
+
+                    if (width > 0 && height > 0) {
+                        aspectRatio = width.toFloat() / height.toFloat()
+                    }
+                }
+            })
+        }
+    }
+
+    AndroidView(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(aspectRatio),
+        factory = {
+            PlayerView(it).apply {
+                player = exoPlayer
+                resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+            }
+        }
+    )
 }

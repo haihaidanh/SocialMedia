@@ -1,18 +1,25 @@
 package com.example.socialmedia1903.presentation
 
+import android.net.Uri
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.socialmedia1903.domain.enums.ThemeMode
 import com.example.socialmedia1903.presentation.screen.createpost.CreateNewPostScreen
+import com.example.socialmedia1903.presentation.screen.story.CameraScreen
 import com.example.socialmedia1903.presentation.screen.dashboard.DashboardScreen
 import com.example.socialmedia1903.presentation.screen.detailpost.DetailPostScreen
 import com.example.socialmedia1903.presentation.screen.group.CreateGroupScreen
@@ -25,19 +32,37 @@ import com.example.socialmedia1903.presentation.screen.profile.ProfileScreen
 import com.example.socialmedia1903.presentation.screen.search.ResultSearchScreen
 import com.example.socialmedia1903.presentation.screen.search.SearchScreen
 import com.example.socialmedia1903.presentation.screen.setting.SettingScreen
+import com.example.socialmedia1903.presentation.screen.setting.SettingsViewModel
 import com.example.socialmedia1903.presentation.screen.signup.SignUpScreen
+import com.example.socialmedia1903.presentation.screen.story.PreviewVideoScreen
+import com.example.socialmedia1903.ui.theme.Socialmedia1903Theme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+    private val viewModel: SettingsViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            mainScreen()
+            val themeMode by viewModel.theme.collectAsState(initial = ThemeMode.SYSTEM)
+
+            val isDark = when (themeMode) {
+                ThemeMode.LIGHT -> false
+                ThemeMode.DARK -> true
+                ThemeMode.SYSTEM -> isSystemInDarkTheme()
+            }
+
+            Socialmedia1903Theme(
+                darkTheme = isDark
+            ) {
+                mainScreen()
+            }
         }
     }
 }
+
 
 @Composable
 fun mainScreen() {
@@ -59,7 +84,7 @@ fun mainScreen() {
         ) {
 
             composable("login") {
-                LoginScreen(navController = navController)
+                LoginScreen(navController = navController, paddingValues = padding)
             }
 
             composable("detail/{postId}") { backStackEntry ->
@@ -91,7 +116,8 @@ fun mainScreen() {
                 val groupId = backStackEntry.arguments?.getString("groupId")
                 CreateNewPostScreen(
                     navController = navController,
-                    groupId = groupId)
+                    groupId = groupId
+                )
             }
 
             composable("my-group") {
@@ -114,7 +140,7 @@ fun mainScreen() {
                 )
             }
 
-            composable("search"){
+            composable("search") {
                 SearchScreen(
                     navController = navController
                 )
@@ -145,23 +171,49 @@ fun mainScreen() {
                     padding = padding
                 )
             }
-            composable("signup"){
+            composable("signup") {
                 SignUpScreen(navController = navController)
             }
 
-            composable("notification"){
+            composable("notification") {
                 NotificationScreen(
                     navController = navController,
                     padding = padding
                 )
             }
 
-            composable("setting"){
+            composable("setting") {
                 SettingScreen()
             }
 
-            composable("groups"){
+            composable("groups") {
                 GroupListScreen(
+                    navController = navController
+                )
+            }
+
+            composable("open-camera") {
+                CameraScreen(
+                    onVideoRecorded = { uri ->
+                        navController.navigate("preview/${Uri.encode(uri.toString())}")
+                    },
+                    onBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(
+                route = "preview/{videoUri}",
+                arguments = listOf(
+                    navArgument("videoUri") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+
+                val videoUri = backStackEntry.arguments?.getString("videoUri")!!
+                PreviewVideoScreen(
+                    videoUri = Uri.parse(videoUri),
+                    onBack = { navController.popBackStack() },
                     navController = navController
                 )
             }

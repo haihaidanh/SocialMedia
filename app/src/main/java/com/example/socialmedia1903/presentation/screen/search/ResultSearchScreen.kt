@@ -1,6 +1,5 @@
 package com.example.socialmedia1903.presentation.screen.search
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -31,7 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.socialmedia1903.R
-import com.example.socialmedia1903.presentation.screen.dashboard.PostItem
+import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItem
 
 @Composable
 fun ResultSearchScreen(

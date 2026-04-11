@@ -4,6 +4,7 @@ import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,7 +26,10 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -48,8 +52,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import coil.request.videoFrameMillis
 import com.example.socialmedia1903.R
+import com.example.socialmedia1903.data.dto.response.MediaResponse
+import com.example.socialmedia1903.domain.enums.PostType
 import com.example.socialmedia1903.presentation.screen.dashboard.DashboardViewModel
+import com.example.socialmedia1903.presentation.screen.dashboard.VideoPlayer
 import java.util.UUID
 
 @Composable
@@ -88,16 +97,18 @@ fun CreateNewPostScreen(
 
     Log.d("hai", isSavePost.toString())
 
-    var postType by remember { mutableStateOf("text") }
+    var postType by remember { mutableStateOf(PostType.TEXT) }
 
     if(selectedImages.isNotEmpty()){
-        postType = "image"
+        postType = PostType.MEDIA
     }
 
-    val imagePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetMultipleContents()
+    val mediaPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia()
     ) { uris ->
-        selectedImages = uris.map { it.toString() }
+        val selected = uris.map { it.toString() }
+        selectedImages = selected
+
         uris.forEach { uri ->
             createPostViewModel.saveImageUri(uri.toString())
         }
@@ -155,34 +166,70 @@ fun CreateNewPostScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Slider demo
-        ImageSlider(
-            images = selectedImages
-        )
-
         Spacer(modifier = Modifier.height(12.dp))
 
         // Pick images
         Button(onClick = {
-            imagePickerLauncher.launch("image/*")
+            mediaPickerLauncher.launch(
+                PickVisualMediaRequest(
+                    ActivityResultContracts.PickVisualMedia.ImageAndVideo // 🔥 cả ảnh + video
+                )
+            )
         }) {
             Text("Chọn ảnh")
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Preview images
         if (selectedImages.isNotEmpty()) {
             LazyRow {
                 items(selectedImages) { uri ->
-                    AsyncImage(
-                        model = uri,
-                        contentDescription = null,
+
+                    val mimeType = context.contentResolver.getType(Uri.parse(uri))
+                    val isVideo = mimeType?.startsWith("video") == true
+
+                    Box(
                         modifier = Modifier
                             .size(80.dp)
                             .padding(4.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                    )
+                    ) {
+
+                        AsyncImage(
+                            model = ImageRequest.Builder(context)
+                                .data(uri)
+                                .crossfade(true)
+                                .videoFrameMillis(0) // 🔥 quan trọng
+                                .build(),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .matchParentSize()
+                                .clip(RoundedCornerShape(8.dp)),
+                            contentScale = ContentScale.Crop
+                        )
+
+                        if (isVideo) {
+                            Box(
+                                modifier = Modifier.matchParentSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .background(
+                                            Color.Black.copy(alpha = 0.5f),
+                                            CircleShape
+                                        ),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.PlayArrow,
+                                        contentDescription = null,
+                                        tint = Color.White
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -214,54 +261,6 @@ fun CreateNewPostScreen(
             },
                 enabled = isSaveToRoom) {
                 Text("Post")
-            }
-        }
-    }
-}
-
-@Composable
-fun ImageSlider(
-    images: List<String>
-) {
-    val pagerState = rememberPagerState(pageCount = { images.size })
-
-    Column {
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(250.dp)
-        ) { page ->
-            AsyncImage(
-                model = images[page],
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Indicator
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            repeat(images.size) { index ->
-                val color = if (pagerState.currentPage == index) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    Color.Gray
-                }
-
-                Box(
-                    modifier = Modifier
-                        .size(8.dp)
-                        .padding(2.dp)
-                        .clip(CircleShape)
-                        .background(color)
-                )
             }
         }
     }

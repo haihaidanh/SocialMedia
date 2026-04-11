@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.socialmedia1903.data.model.ErrLogIn
 import com.example.socialmedia1903.data.local.MyPreference
+import com.example.socialmedia1903.domain.usecase.GoogleSignInUseCase
 import com.example.socialmedia1903.domain.usecase.LogInUseCase
+import com.example.socialmedia1903.presentation.state.AuthState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +16,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LogInViewModel @Inject constructor(
     private val logInUseCase: LogInUseCase,
-    private val myPreference: MyPreference
+    private val myPreference: MyPreference,
+    private val googleSignInUseCase: GoogleSignInUseCase
 ): ViewModel() {
     private val _loading = MutableStateFlow(true)
     val loading: StateFlow<Boolean> = _loading
@@ -22,6 +25,8 @@ class LogInViewModel @Inject constructor(
     private val _error = MutableStateFlow(ErrLogIn())
     val error: StateFlow<ErrLogIn> = _error
 
+    private val _state = MutableStateFlow<AuthState>(AuthState.Idle)
+    val state: StateFlow<AuthState> = _state
 
     fun logIn(name: String, password: String){
         viewModelScope.launch {
@@ -37,8 +42,24 @@ class LogInViewModel @Inject constructor(
         }
     }
 
-    fun isLoggedIn(): Boolean {
-        return myPreference.getAccessToken() != null
+    fun loginWithGoogle(idToken: String) {
+        viewModelScope.launch {
+            _loading.value = true
+
+            val result = googleSignInUseCase(idToken)
+
+            result.fold(
+                onSuccess = {
+                    _loading.value = false
+                },
+                onFailure = {
+                    _error.value = error.value.copy(
+                        errName = "Google login failed"
+                    )
+                    _loading.value = false
+                }
+            )
+        }
     }
 
 }

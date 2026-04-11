@@ -4,10 +4,11 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.socialmedia1903.data.dto.response.FriendsResponse
 import com.example.socialmedia1903.data.dto.response.FriendshipResponse
-import com.example.socialmedia1903.data.dto.response.Group
-import com.example.socialmedia1903.data.dto.response.PostResponse
+import com.example.socialmedia1903.data.dto.response.GroupInfoResponse
+import com.example.socialmedia1903.data.source.RemoteDataSource
+import com.example.socialmedia1903.domain.model.GroupInfo
+import com.example.socialmedia1903.domain.model.Post
 import com.example.socialmedia1903.domain.usecase.AllGroupUseCase
 import com.example.socialmedia1903.domain.usecase.CreateGroupUseCase
 import com.example.socialmedia1903.domain.usecase.GetFriendsUseCase
@@ -23,20 +24,21 @@ class GroupViewModel @Inject constructor(
     private val createGroupUseCase: CreateGroupUseCase,
     private val allGroupUseCase: AllGroupUseCase,
     private val getGroupDetailUseCase: GetGroupDetailUseCase,
-    private val getFriendsUseCase: GetFriendsUseCase
+    private val getFriendsUseCase: GetFriendsUseCase,
+    private val remoteDataSource: RemoteDataSource
 ) : ViewModel() {
 
     private val _isDone = MutableStateFlow(false)
     val isDone: StateFlow<Boolean> = _isDone
 
-    private val _groups = MutableStateFlow<List<Group>>(emptyList())
-    val groups: StateFlow<List<Group>> = _groups
+    private val _groups = MutableStateFlow<List<GroupInfo>>(emptyList())
+    val groups: StateFlow<List<GroupInfo>> = _groups
 
-    private val _group = MutableStateFlow(Group())
-    val group: StateFlow<Group> = _group
+    private val _group = MutableStateFlow(GroupInfo())
+    val group: StateFlow<GroupInfo> = _group
 
-    private val _posts = MutableStateFlow<List<PostResponse>>(emptyList())
-    val posts: StateFlow<List<PostResponse>> = _posts
+    private val _posts = MutableStateFlow<List<Post>>(emptyList())
+    val posts: StateFlow<List<Post>> = _posts
 
     private val _friends = MutableStateFlow<List<FriendshipResponse>>(emptyList())
     val friends: StateFlow<List<FriendshipResponse>> = _friends
@@ -63,7 +65,7 @@ class GroupViewModel @Inject constructor(
     fun getGroupDetail(groupId: String) {
         viewModelScope.launch {
             val result = getGroupDetailUseCase(groupId)
-            _group.value = result.group
+            _group.value = result.groupInfo
             _posts.value = result.posts
         }
     }
@@ -72,6 +74,14 @@ class GroupViewModel @Inject constructor(
         viewModelScope.launch {
             val result = getFriendsUseCase()
             _friends.value = result
+        }
+    }
+
+    fun leaveGroup(
+        groupId: String?
+    ){
+        viewModelScope.launch {
+            remoteDataSource.leaveGroup(groupId)
         }
     }
 

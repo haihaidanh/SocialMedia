@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,7 +35,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.socialmedia1903.R
-import com.example.socialmedia1903.data.dto.response.Group
+import com.example.socialmedia1903.data.dto.response.GroupInfoResponse
+import com.example.socialmedia1903.domain.model.GroupInfo
 
 
 @Composable
@@ -53,8 +55,9 @@ fun GroupListScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
-            .padding(16.dp)
+            .background(
+                color = MaterialTheme.colorScheme.surface
+            )
     ) {
 
         Scaffold(
@@ -85,13 +88,15 @@ fun GroupListScreen(
 
 @Composable
 fun GroupItemView(
-    group: Group,
+    group: GroupInfo,
     onClick: () -> Unit = { }
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFFF5F5F5), RoundedCornerShape(12.dp))
+            .background(
+                color = MaterialTheme.colorScheme.surface
+                , RoundedCornerShape(12.dp))
             .padding(12.dp)
             .clickable {
                 onClick()

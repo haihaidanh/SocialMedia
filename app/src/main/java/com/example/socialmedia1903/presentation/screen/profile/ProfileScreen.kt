@@ -2,10 +2,8 @@ package com.example.socialmedia1903.presentation.screen.profile
 
 import android.util.Log
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,8 +14,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
@@ -41,13 +41,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.socialmedia1903.R
-import com.example.socialmedia1903.data.utils.InvitationStatus
+import com.example.socialmedia1903.domain.enums.InvitationStatus
+import com.example.socialmedia1903.domain.enums.InvitationType
+import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItem
 
 
 @Composable
 fun ProfileScreen(
     navController: NavController,
     profileViewModel: ProfileViewModel = hiltViewModel(),
+    invitationViewModel: InvitationViewModel = hiltViewModel(),
     id: String
 ) {
 
@@ -62,19 +65,42 @@ fun ProfileScreen(
     }
     val status by profileViewModel.status.collectAsState()
     val profile by profileViewModel.profile.collectAsState()
+    val posts by profileViewModel.posts.collectAsState()
     val friends by profileViewModel.friends.collectAsState()
     var showUnfriendDialog by remember { mutableStateOf(false) }
+    var showResponseDialog by remember { mutableStateOf(false) }
+    val scroll = rememberScrollState()
 
-    UnfriendBottomSheet(
+    ResponseAddRequest(
+        showResponseDialog,
+        onDismiss = {
+            showResponseDialog = false
+        },
+        onAccept = {
+            invitationViewModel.acceptInvitation(
+                InvitationType.ADD_FRIEND, userId = profile.userId
+            )
+            showResponseDialog = false
+        },
+        onDecline = {
+            invitationViewModel.rejectInvitation(
+                InvitationType.ADD_FRIEND, userId = profile.userId
+            )
+            showResponseDialog = false
+        }
+    )
+
+    BottomSheet(
         showUnfriendDialog,
+        content = listOf(
+            BottomSheetItem("Hủy kết bạn", onClick = {
+                profileViewModel.unFriend(id)
+                profileViewModel.setStatus(InvitationStatus.NONE)
+                showUnfriendDialog = false
+            })),
         onDismiss = {
             showUnfriendDialog = false
         },
-        onUnfriend = {
-            profileViewModel.unFriend(id)
-            profileViewModel.setStatus(InvitationStatus.NONE)
-            showUnfriendDialog = false
-        }
     )
 
     Box(
@@ -82,43 +108,65 @@ fun ProfileScreen(
             .fillMaxSize()
             .background(Color.White)
     ) {
-        Column {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scroll)
+        ) {
 
-            // Ảnh bìa
-            Box {
-
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+            ) {
                 AsyncImage(
-                    model = profile.background,
+                    model = profile.background ?: R.drawable.background,
                     contentDescription = "Cover",
-                    placeholder = painterResource(R.drawable.baseline_arrow_back_ios_new_24),
-                    error = painterResource(R.drawable.baseline_arrow_back_ios_new_24),
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(180.dp)
+                        .height(150.dp)
+                        .background(Color.LightGray)
+                        .align(Alignment.TopCenter)
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(70.dp)
+                        .align(Alignment.BottomCenter)
+                        .offset(y = (-10).dp)
+                        .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                        .background(Color.White)
                 )
                 AsyncImage(
                     model = profile.avatarUrl,
                     contentDescription = "Avatar",
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(100.dp)
+                        .padding(start = 16.dp, bottom = 30.dp)
+                        .size(80.dp)
                         .clip(CircleShape)
-                        .border(3.dp, Color.White, CircleShape)
+                        .background(Color.LightGray)
+                        .border(3.dp, Color.LightGray, CircleShape)
                         .align(Alignment.BottomStart)
-                        .offset(x = 16.dp, y = 50.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.height(60.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            // Tên
             Text(
-                text = profile.name,
-                fontSize = 22.sp,
+                text = profile.username,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(start = 16.dp)
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "@" + profile.name,
+                fontSize = 16.sp,
+                color = Color.Gray,
+                modifier = Modifier.padding(start = 16.dp)
+            )
 
             if (status == InvitationStatus.ACCEPTED) {
                 Row(
@@ -163,7 +211,20 @@ fun ProfileScreen(
                 ) {
                     Text(text = "Đã gửi lời mời kết bạn")
                 }
-            } else {
+             }else if(status == InvitationStatus.INVITED){
+                Button(
+                    onClick = {
+                        showResponseDialog = true
+                    },
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(text = "Phản hồi")
+                }
+             }
+            else {
                 Button(
                     onClick = {
                         profileViewModel.setStatus(InvitationStatus.PENDING)
@@ -177,33 +238,46 @@ fun ProfileScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            TextAndIcon(
+                text = "Mô tả",
+                icon = R.drawable.edit,
+                onIconClick = {
 
-            Divider()
+                },
+                modifier = Modifier.padding(top = 10.dp)
+            )
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Thông tin cá nhân
             Text(
+                text = "",
+                fontSize = 14.sp,
+                color = Color.Black,
+                modifier = Modifier.padding(10.dp)
+            )
+
+            TextAndIcon(
                 text = "Thông tin cá nhân",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                icon = R.drawable.edit,
+                onIconClick = {
+
+                }
             )
+            FriendsPreview(
+                friends = friends,
+                onSeeAllClick = {
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Divider()
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Bạn bè
-            Text(
-                text = "Bạn bè",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                },
+                navController,
+                modifier = Modifier
+                    .padding(10.dp)
             )
+            Log.d("hai", "posts: ${posts.size}")
+            posts.forEach { post ->
+                PostItem(
+                    post = post,
+                    navController = navController
+                )
+            }
+
         }
     }
 }

@@ -18,6 +18,7 @@ class MyPreference @Inject constructor(
             .putString("refresh", logInResponse.refreshToken)
             .putString("name", logInResponse.name)
             .putString("avatarUrl", logInResponse.avatarUrl)
+            .putString("username", logInResponse.username)
             .apply()
     }
 
@@ -34,6 +35,10 @@ class MyPreference @Inject constructor(
 
     fun getAvatarUrl(): String?{
         return prefs.getString("avatarUrl", null)
+    }
+
+    fun getUsername(): String?{
+        return prefs.getString("username", null)
     }
 
     fun clear() {

@@ -40,10 +40,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.socialmedia1903.R
+import com.example.socialmedia1903.presentation.screen.login.InputComponent
 import kotlin.math.sign
 
 @Composable
@@ -53,10 +55,15 @@ fun SignUpScreen(
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
+
     var selectedGender by remember { mutableStateOf("Nam") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     val isSignUpSuccess by signUpViewModel.isSignUpSuccess.collectAsState()
     val context = LocalContext.current
+
+    val err by signUpViewModel.error.collectAsState()
 
     if(isSignUpSuccess){
         navController.navigate("login")
@@ -93,7 +100,6 @@ fun SignUpScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Avatar picker
         Box(
             modifier = Modifier
                 .size(120.dp)
@@ -119,28 +125,36 @@ fun SignUpScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Username
-        OutlinedTextField(
-            value = username,
+        InputComponent(
+            placeholder = "Tên hiển thị",
             onValueChange = { username = it },
-            label = { Text("Tên đăng nhập") },
-            modifier = Modifier.fillMaxWidth()
+            icon = R.drawable.pwd_login,
+            error = err.errUserName
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        InputComponent(
+            placeholder = "Tên đăng nhập",
+            onValueChange = { name = it },
+            icon = R.drawable.pwd_login,
+            error = err.errName
+        )
 
-        // Password
-        OutlinedTextField(
-            value = password,
+        InputComponent(
+            placeholder = "Mật khẩu",
             onValueChange = { password = it },
-            label = { Text("Mật khẩu") },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            isPwd = true,
+            icon = R.drawable.pwd_login,
+            error = err.errPassword
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        InputComponent(
+            placeholder = "Xác nhận mật khẩu",
+            onValueChange = { confirmPassword = it },
+            isPwd = true,
+            icon = R.drawable.pwd_login,
+            error = err.errConfirmPassword
+        )
 
-        // Gender selection
         Text(text = "Giới tính")
 
         Row(
@@ -166,13 +180,14 @@ fun SignUpScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Register button
         Button(
             onClick = {
                 signUpViewModel.signUp(
-                    imageUri!!,
+                    imageUri ?: Uri.EMPTY,
                     username,
+                    name,
                     password,
+                    confirmPassword,
                     if(selectedGender == "Nam") 1 else 2,
                     context
                 )

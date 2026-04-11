@@ -6,6 +6,7 @@ import com.example.socialmedia1903.data.dto.response.PostResponse
 import com.example.socialmedia1903.data.dto.response.SearchItemResponse
 import com.example.socialmedia1903.data.dto.response.UserResponse
 import com.example.socialmedia1903.domain.model.Post
+import com.example.socialmedia1903.domain.model.SearchItem
 import com.example.socialmedia1903.domain.model.User
 import com.example.socialmedia1903.domain.usecase.SearchUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,11 +19,11 @@ import javax.inject.Inject
 class SearchViewModel @Inject constructor(
     private val searchUseCase: SearchUseCase
 ): ViewModel(){
-    private val _users = MutableStateFlow<List<SearchItemResponse>>(emptyList())
-    val users: StateFlow<List<SearchItemResponse>> = _users
+    private val _users = MutableStateFlow<List<SearchItem>>(emptyList())
+    val users: StateFlow<List<SearchItem>> = _users
 
-    private val _posts = MutableStateFlow<List<PostResponse>>(emptyList())
-    val posts: StateFlow<List<PostResponse>> = _posts
+    private val _posts = MutableStateFlow<List<Post>>(emptyList())
+    val posts: StateFlow<List<Post>> = _posts
 
     private val _text = MutableStateFlow("")
     val text: StateFlow<String> = _text

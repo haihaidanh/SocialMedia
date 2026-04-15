@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DrawerValue
@@ -52,6 +53,7 @@ import com.example.socialmedia1903.data.dto.response.PostResponse
 import com.example.socialmedia1903.domain.model.Post
 import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItem
 import com.example.socialmedia1903.presentation.screen.story.AddStoryItem
+import com.example.socialmedia1903.presentation.screen.story.StoryItem
 import com.example.socialmedia1903.presentation.screen.story.StoryViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -79,12 +81,12 @@ fun DashboardScreen(
         }
     }
 
-//    LaunchedEffect(Unit) {
-//        storyViewModel.getStories()
-//    }
-//
-//    val stories by storyViewModel.stories.collectAsState()
-//    //Log.d("hai", stories.size.toString())
+    LaunchedEffect(Unit) {
+        storyViewModel.getStories()
+    }
+
+    val stories by storyViewModel.stories.collectAsState()
+    //Log.d("hai", stories.size.toString())
 
     LaunchedEffect(Unit) {
         dashboardViewModel.getAvatar()
@@ -148,18 +150,18 @@ fun DashboardScreen(
                                         .padding(start = 10.dp)
                                 )
                             }
-//                            if(stories.isNotEmpty()){
-//                                items(stories){ story ->
-//                                    StoryItem(
-//                                        avatarUrl = story.user.avatarUrl,
-//                                        thumbnail = story.thumbnail,
-//                                        onClick = {
-//                                        },
-//                                        modifier = Modifier
-//                                            .padding(10.dp)
-//                                    )
-//                                }
-//                            }
+                            if(stories.isNotEmpty()){
+                                items(stories){ story ->
+                                    StoryItem(
+                                        avatarUrl = story.user.avatarUrl,
+                                        thumbnail = story.thumbnail,
+                                        onClick = {
+                                        },
+                                        modifier = Modifier
+                                            .padding(10.dp)
+                                    )
+                                }
+                            }
 
                         }
 

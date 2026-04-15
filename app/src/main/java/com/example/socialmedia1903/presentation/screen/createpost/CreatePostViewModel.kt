@@ -4,12 +4,12 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.socialmedia1903.data.source.LocalDataSource
+import com.example.socialmedia1903.domain.enums.PostType
 import com.example.socialmedia1903.domain.usecase.CreatePostUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -39,10 +39,11 @@ class CreatePostViewModel @Inject constructor(
     }
 
 
+
     fun createPost(
         postId: String,
         content: String,
-        type: String,
+        type: PostType,
         groupId: String?,
         contentType: String,
         anonymous: Boolean,

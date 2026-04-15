@@ -1,6 +1,6 @@
 package com.example.socialmedia1903.data.dto.response
 
-data class Profile(
+data class ProfileInfoResponse(
     val id: String="",
     val userId: String="",
     val name: String="",
@@ -8,6 +8,7 @@ data class Profile(
     val background: String?=null,
     val gender: Int = 0,
     val birthday: String?=null,
+    val username: String="",
     val phoneNumber: String?=null,
     val address: String?=null,
     val createdAt: String="",

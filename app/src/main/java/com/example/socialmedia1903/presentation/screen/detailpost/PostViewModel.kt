@@ -5,12 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.socialmedia1903.R
 import com.example.socialmedia1903.data.dto.response.CommentResponse
+import com.example.socialmedia1903.data.dto.response.FriendshipResponse
 import com.example.socialmedia1903.data.dto.response.LikeResponse
 import com.example.socialmedia1903.data.dto.response.PostResponse
 import com.example.socialmedia1903.data.remote.SocketManager
 import com.example.socialmedia1903.data.source.RemoteDataSource
 import com.example.socialmedia1903.domain.repository.CommentRepository
 import com.example.socialmedia1903.domain.usecase.CommentUserCase
+import com.example.socialmedia1903.domain.usecase.GetFriendsUseCase
 import com.example.socialmedia1903.domain.usecase.LikePostUseCase
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,7 +26,8 @@ class PostViewModel @Inject constructor(
     private val likePostUseCase: LikePostUseCase,
     private val remoteDataSource: RemoteDataSource,
     private val commentRepository: CommentRepository,
-    private val commentUserCase: CommentUserCase
+    private val commentUserCase: CommentUserCase,
+    private val getFriendsUseCase: GetFriendsUseCase
 ): ViewModel() {
 
     private val _like = MutableStateFlow(LikeResponse())
@@ -39,6 +42,8 @@ class PostViewModel @Inject constructor(
     private val _isLoadingComments = MutableStateFlow(false)
     val isLoadingComments: StateFlow<Boolean> = _isLoadingComments
 
+    private val _friends = MutableStateFlow<List<FriendshipResponse>>(emptyList())
+    val friends: StateFlow<List<FriendshipResponse>> = _friends
 
 
     fun likePost(postId: String, type: String){
@@ -51,7 +56,6 @@ class PostViewModel @Inject constructor(
         viewModelScope.launch {
             _post.value = remoteDataSource.getDetailPost(postId)
         }
-
     }
 
     fun getAllComment(postId: String){
@@ -86,6 +90,12 @@ class PostViewModel @Inject constructor(
 
             _comments.value = newList
             Log.d("VM", _comments.value.size.toString())
+        }
+    }
+
+    fun getFriends(){
+        viewModelScope.launch {
+            _friends.value = getFriendsUseCase()
         }
     }
 

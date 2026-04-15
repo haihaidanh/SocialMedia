@@ -48,12 +48,14 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.socialmedia1903.data.dto.response.Group
+import com.example.socialmedia1903.data.dto.response.GroupInfoResponse
+import com.example.socialmedia1903.domain.model.GroupInfo
 import com.example.socialmedia1903.presentation.screen.dashboard.DashboardViewModel
-import com.example.socialmedia1903.presentation.screen.dashboard.PostItem
+import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItem
 import com.example.socialmedia1903.presentation.screen.dashboard.createPostScreen
 import com.example.socialmedia1903.presentation.screen.profile.InvitationViewModel
-import com.example.socialmedia1903.presentation.screen.profile.ProfileViewModel
+import com.example.socialmedia1903.presentation.screen.profile.BottomSheet
+import com.example.socialmedia1903.presentation.screen.profile.BottomSheetItem
 import kotlin.math.roundToInt
 
 @Composable
@@ -86,6 +88,8 @@ fun GroupScreen(
     val friends by groupViewModel.friends.collectAsState()
     Log.d("hai", friends.size.toString())
     var showFriendDialog by remember { mutableStateOf(false) }
+    var showLeaveGroupBottomSheet by remember { mutableStateOf(false) }
+    var showResponse by remember { mutableStateOf(false) }
 
     if (showFriendDialog) {
         FriendListBottomSheet(
@@ -96,6 +100,40 @@ fun GroupScreen(
             }
         )
     }
+
+    //phản hồi
+    BottomSheet(
+        show = showResponse,
+        content = listOf(
+            BottomSheetItem(
+                "Đồng ý",
+                onClick = {
+
+                }
+            ),
+            BottomSheetItem(
+                "Từ chối",
+                onClick = {
+
+                }
+            )
+        ),
+        onDismiss = {
+            showResponse = false
+        }
+    )
+
+    BottomSheet(
+        show = showLeaveGroupBottomSheet,
+        content = listOf(
+            BottomSheetItem("Rời nhóm") {
+                groupViewModel.leaveGroup(groupId)
+                showLeaveGroupBottomSheet = false
+            }
+        ),
+        onDismiss = { showLeaveGroupBottomSheet = false }
+    )
+
 
     // Thay thế đoạn khai báo cũ bằng đoạn này:
     val maxHeaderHeight = 150.dp
@@ -122,7 +160,11 @@ fun GroupScreen(
                 return Offset.Zero
             }
 
-            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
                 val delta = available.y
                 // Khi vuốt xuống (delta > 0) và LazyColumn đã cuộn lên trên cùng
                 if (delta > 0 && contentOffsetY < headerHeightPx) {
@@ -180,6 +222,8 @@ fun GroupScreen(
                 .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
                 .background(Color.White, RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
         ) {
+
+
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
@@ -189,7 +233,12 @@ fun GroupScreen(
                         group = group,
                         navController = navController,
                         showFriendDialog = { showFriendDialog = true },
-                        avatar
+                        showBottomSheet = {
+                            showLeaveGroupBottomSheet = true
+                        },
+                        showResponse = {
+                            showResponse = true
+                        }
                     )
                 }
 
@@ -222,15 +271,6 @@ fun GroupScreen(
             }
         }
 
-        // 3. NÚT BACK (Cố định ở góc trên)
-        Icon(
-            imageVector = Icons.Default.ArrowBack,
-            contentDescription = "Back",
-            modifier = Modifier
-                .padding(16.dp)
-                .size(30.dp)
-                .clickable { navController.popBackStack() }
-        )
 
         // 3. TOPBAR DỊCH CHUYỂN & BIẾN ĐỔI
         Row(
@@ -270,11 +310,14 @@ fun GroupScreen(
 
 @Composable
 fun GroupTitle(
-    group: Group,
+    group: GroupInfo,
     navController: NavController,
     showFriendDialog: () -> Unit,
-    avatar: String? = null
+    showBottomSheet: () -> Unit,
+    showResponse: () -> Unit
 ) {
+
+
     Column(
         modifier = Modifier
             .padding(16.dp)
@@ -297,7 +340,7 @@ fun GroupTitle(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "10,245 thành viên",
+                text = group.memberCount.toString() + " thành viên",
                 fontSize = 16.sp,
                 color = Color.Gray
             )
@@ -311,7 +354,7 @@ fun GroupTitle(
         ) {
             if (group.isOwner) {
                 Button(
-                    onClick = {  },
+                    onClick = { },
                     modifier = Modifier
                         .weight(0.5f)
                         .height(50.dp),
@@ -329,7 +372,10 @@ fun GroupTitle(
                     },
                     modifier = Modifier
                         .weight(0.5f)
-                        .height(50.dp),
+                        .height(50.dp)
+                        .clickable {
+                            showFriendDialog()
+                        },
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
@@ -338,10 +384,10 @@ fun GroupTitle(
                         fontWeight = FontWeight.Bold
                     )
                 }
-            } else if (group.MemberGroups.isNotEmpty()) {
+            } else if (group.memberGroups.isNotEmpty()) {
                 Button(
                     onClick = {
-
+                        showBottomSheet()
                     },
                     modifier = Modifier
                         .weight(0.5f)
@@ -357,10 +403,10 @@ fun GroupTitle(
                 }
                 Button(
                     onClick = {
-
+                        showFriendDialog()
                     },
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .weight(0.5f)
                         .height(50.dp),
                     shape = RoundedCornerShape(12.dp)
 
@@ -372,10 +418,11 @@ fun GroupTitle(
                         fontWeight = FontWeight.Bold
                     )
                 }
-            } else if(group.statusRequest == "PENDING"){
+            } else if (group.statusRequest == "PENDING") {
 
                 Button(
                     onClick = {
+                        showResponse()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -388,9 +435,10 @@ fun GroupTitle(
                         fontWeight = FontWeight.Bold
                     )
                 }
-            } else{
+            } else {
                 Button(
                     onClick = {
+
                     },
                     modifier = Modifier
                         .fillMaxWidth()

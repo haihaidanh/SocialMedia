@@ -49,7 +49,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.socialmedia1903.R
 import com.example.socialmedia1903.data.dto.response.PostResponse
-import com.example.socialmedia1903.data.utils.ReactionType
+import com.example.socialmedia1903.domain.enums.PostType
+import com.example.socialmedia1903.domain.enums.ReactionType
 
 
 @Composable
@@ -121,14 +122,19 @@ fun DetailPostScreen(
                             .height(200.dp)
                             .background(Color.LightGray)
                     ) {
-                        if (post.type != "media") {
-                            Text(
-                                text = post.content,
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White,
-                                modifier = Modifier.align(Alignment.Center)
-                            )
+                        when (post.type) {
+                            PostType.MEDIA -> {
+                                Text(
+                                    text = post.content,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                            }
+                            PostType.TEXT -> {
+
+                            }
                         }
                     }
 

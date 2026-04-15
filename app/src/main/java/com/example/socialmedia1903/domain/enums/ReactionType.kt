@@ -1,4 +1,4 @@
-package com.example.socialmedia1903.data.utils
+package com.example.socialmedia1903.domain.enums
 
 import com.example.socialmedia1903.R
 

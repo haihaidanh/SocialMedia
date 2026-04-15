@@ -1,5 +1,6 @@
 package com.example.socialmedia1903.presentation.screen.notification
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,7 +35,8 @@ import com.example.socialmedia1903.data.dto.response.NotificationResponse
 fun AddFriendItem(
     item: NotificationResponse,
     onAccept: () -> Unit,
-    onReject: () -> Unit
+    onReject: () -> Unit,
+    onItemClick: () -> Unit
 ) {
     var status by remember { mutableStateOf("none") }
 
@@ -50,7 +53,8 @@ fun AddFriendItem(
             contentDescription = "avatar",
             modifier = Modifier
                 .size(50.dp)
-                .clip(CircleShape)
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop
         )
 
         Spacer(modifier = Modifier.width(12.dp))
@@ -63,7 +67,11 @@ fun AddFriendItem(
             Text(
                 text = item.User.name,
                 fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
+                fontSize = 16.sp,
+                modifier = Modifier
+                    .clickable {
+                        onItemClick()
+                    }
             )
 
             Spacer(modifier = Modifier.height(4.dp))

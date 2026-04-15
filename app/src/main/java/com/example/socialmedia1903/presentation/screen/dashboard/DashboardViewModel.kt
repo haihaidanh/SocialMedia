@@ -11,6 +11,7 @@ import com.example.socialmedia1903.data.remote.AppService
 import com.example.socialmedia1903.data.local.MyPreference
 import com.example.socialmedia1903.data.source.PostPagingSource
 import com.example.socialmedia1903.data.source.RemoteDataSource
+import com.example.socialmedia1903.domain.model.Post
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,9 +38,16 @@ class DashboardViewModel @Inject constructor(
     private val _checkLogIn = MutableStateFlow(true)
     val checkLogIn: StateFlow<Boolean> = _checkLogIn
 
+    private val _username = MutableStateFlow<String?>(null)
+    val username: StateFlow<String?> = _username
 
-    val posts: Flow<PagingData<PostResponse>> = Pager(
-        config = PagingConfig(pageSize = 10, enablePlaceholders = false),
+
+    val posts: Flow<PagingData<Post>> = Pager(
+        config = PagingConfig(
+            pageSize = 2,
+            initialLoadSize = 2,
+            enablePlaceholders = false
+        ),
         pagingSourceFactory = { PostPagingSource(apiService) }
     ).flow.cachedIn(viewModelScope)
 
@@ -61,6 +69,12 @@ class DashboardViewModel @Inject constructor(
     fun getName() {
         viewModelScope.launch {
             _name.value = myPreference.getName()
+        }
+    }
+
+    fun getUserName() {
+        viewModelScope.launch {
+            _username.value = myPreference.getUsername()
         }
     }
 

@@ -19,8 +19,8 @@ import javax.inject.Singleton
 object NetworkModule {
 
 
-    private const val BASE_URL = "http://10.0.2.2:8080"
-    //private const val BASE_URL = "http://192.168.1.123:8080"
+    //private const val BASE_URL = "http://10.0.2.2:8080"
+    private const val BASE_URL = "https://be-socialmedia-production.up.railway.app"
 
     @Provides
     @Singleton
@@ -32,7 +32,6 @@ object NetworkModule {
             .build()
     }
 
-    // 🔹 Service dùng để refresh token
     @Provides
     @Singleton
     @Named("authService")
@@ -42,7 +41,6 @@ object NetworkModule {
         return retrofit.create(AppService::class.java)
     }
 
-    // 🔹 AuthInterceptor (gắn access token)
     @Provides
     @Singleton
     fun provideAuthInterceptor(

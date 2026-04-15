@@ -4,17 +4,21 @@ import android.content.Context
 import androidx.core.net.toUri
 import com.example.socialmedia1903.data.source.LocalDataSource
 import com.example.socialmedia1903.data.source.RemoteDataSource
-import java.util.UUID
+import com.example.socialmedia1903.domain.enums.PostType
+import com.example.socialmedia1903.domain.repository.PostRepository
 import javax.inject.Inject
 
 class CreatePostUseCase @Inject constructor(
     private val remoteDataSource: RemoteDataSource,
-    private val localDataSource: LocalDataSource
+    private val localDataSource: LocalDataSource,
+    private val postRepository: PostRepository
 ) {
+
+
     suspend operator fun invoke(
         postId: String,
         content: String,
-        type: String,
+        type: PostType,
         groupId: String?,
         contentType: String,
         anonymous: Boolean,

@@ -9,16 +9,4 @@ class CommentRepository @Inject constructor(private val socketManager: SocketMan
     fun connectSocket(postId: String?, onNewComment: (JSONObject) -> Unit) {
         socketManager.connect(postId, onNewComment)
     }
-
-
-//    fun connectSocket(postId: String?, onNewComment: (JSONObject) -> Unit) {
-//        socketManager.connect()
-//        socketManager.joinPost(postId)
-//        socketManager.listenNewComment(onNewComment)
-//
-//    }
-//
-//    fun disconnectSocket() {
-//        socketManager.disconnect()
-//    }
 }

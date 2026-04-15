@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -24,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -57,12 +57,12 @@ fun DrawerContent(
     }
 
     LaunchedEffect(Unit) {
-        viewmodel.getName()
+        viewmodel.getUserName()
     }
 
     val scope = rememberCoroutineScope()
     val avatar by viewmodel.avatar.collectAsState()
-    val name by viewmodel.name.collectAsState()
+    val username by viewmodel.username.collectAsState()
 
     Column(
         modifier = Modifier
@@ -88,11 +88,12 @@ fun DrawerContent(
                 modifier = Modifier
                     .padding(5.dp)
                     .clip(CircleShape)
-                    .size(30.dp)
+                    .size(30.dp),
+                contentScale = ContentScale.Crop
             )
 
             Text(
-                text = name ?: "hai",
+                text = username ?: "hai",
                 modifier = Modifier.padding(16.dp),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
@@ -123,7 +124,7 @@ fun DrawerContent(
             }
 
             DrawerItem("Cài đặt") {
-                navController.navigate("settings")
+                navController.navigate("setting")
                 scope.launch { drawerState.close() }
             }
 

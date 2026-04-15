@@ -5,37 +5,45 @@ import android.net.Uri
 import android.util.Log
 import com.example.socialmedia1903.data.dto.request.AddFriendRequest
 import com.example.socialmedia1903.data.dto.request.CommentRequest
-import com.example.socialmedia1903.data.dto.request.CreatePostRequest
+import com.example.socialmedia1903.data.dto.request.PostRequest
 import com.example.socialmedia1903.data.dto.request.LikeRequest
 import com.example.socialmedia1903.data.dto.request.LogInRequest
 import com.example.socialmedia1903.data.dto.response.CommentResponse
 import com.example.socialmedia1903.data.dto.response.FriendshipResponse
-import com.example.socialmedia1903.data.dto.response.Group
-import com.example.socialmedia1903.data.dto.response.GroupResponse
 import com.example.socialmedia1903.data.dto.response.LikeResponse
 import com.example.socialmedia1903.data.dto.response.LogInResponse
 import com.example.socialmedia1903.data.dto.response.NotificationResponse
 import com.example.socialmedia1903.data.dto.response.PostResponse
-import com.example.socialmedia1903.data.dto.response.Profile
-import com.example.socialmedia1903.data.dto.response.ProfileResponse
-import com.example.socialmedia1903.data.dto.response.SearchResponse
+import com.example.socialmedia1903.data.dto.response.SearchResultResponse
 import com.example.socialmedia1903.data.dto.response.SignUpResponse
+import com.example.socialmedia1903.data.dto.response.story.StoryResponse
+import com.example.socialmedia1903.data.mapper.HaiMapper.toGroup
+import com.example.socialmedia1903.data.mapper.HaiMapper.toGroupInfo
 import com.example.socialmedia1903.data.remote.AppService
 import com.example.socialmedia1903.data.utils.AppUtils
-import com.example.socialmedia1903.data.utils.InvitationStatus
-import com.example.socialmedia1903.data.utils.NotificationType
+import com.example.socialmedia1903.domain.enums.InvitationStatus
+import com.example.socialmedia1903.domain.enums.InvitationType
+import com.example.socialmedia1903.domain.enums.PostType
+import com.example.socialmedia1903.domain.model.Group
+import com.example.socialmedia1903.domain.model.GroupInfo
+import com.example.socialmedia1903.domain.model.Profile
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
+import com.example.socialmedia1903.data.mapper.HaiMapper.ToProfile
+import com.example.socialmedia1903.data.mapper.HaiMapper.toSearchResult
+import com.example.socialmedia1903.domain.model.ProfileInfo
+import com.example.socialmedia1903.domain.model.SearchResult
 
 class RemoteDataSource @Inject constructor(
     private val appService: AppService
 ) {
-    suspend fun signUp(uri: Uri, name: String, password: String, gender: Int, context: Context): SignUpResponse{
+    suspend fun signUp(uri: Uri, name: String, username: String, password: String, gender: Int, context: Context): SignUpResponse{
         val image = AppUtils.uriToMultipart(context, uri)
         val response = appService.signUp(
             image,
             name,
+            username,
             password,
             gender
         )
@@ -60,8 +68,8 @@ class RemoteDataSource @Inject constructor(
         }
     }
 
-    suspend fun search(text: String): SearchResponse{
-        return appService.search(text)
+    suspend fun search(text: String): SearchResult {
+        return appService.search(text).toSearchResult()
     }
 
     suspend fun likePost(postId: String, type: String): LikeResponse{
@@ -87,14 +95,14 @@ class RemoteDataSource @Inject constructor(
     suspend fun createPost(
         postId: String,
         content: String,
-        type: String,
+        type: PostType,
         groupId: String?,
         contentType: String,
         anonymous: Boolean,
         visibility: String
     ): Boolean{
         val response = appService.createPost(
-            CreatePostRequest(
+            PostRequest(
                 id = postId,
                 content = content,
                 groupId = groupId,
@@ -132,37 +140,37 @@ class RemoteDataSource @Inject constructor(
         }
         return true
     }
-    suspend fun getGroups(): List<Group>{
+    suspend fun getGroups(): List<GroupInfo>{
         val response = appService.getGroups()
         if (!response.isSuccessful){
             throw Exception("Failed to get groups")
         }
-        return response.body()?.groups ?: emptyList()
+        return response.body()?.groups?.map { it.toGroupInfo() } ?: emptyList()
     }
 
-    suspend fun getGroupDetail(groupId: String): GroupResponse{
+    suspend fun getGroupDetail(groupId: String): Group{
         val response = appService.getGroupDetail(groupId)
         if (!response.isSuccessful){
             throw Exception("Failed to get group detail")
         }
-        return response.body() ?: GroupResponse(Group(), emptyList())
+        return response.body()?.toGroup() ?: Group(GroupInfo(), emptyList())
     }
 
-    suspend fun getProfile(id: String): ProfileResponse {
+    suspend fun getProfile(id: String): Profile {
         val response = appService.getProfile(id)
         if (!response.isSuccessful){
             throw Exception("Failed to get profile")
         }
         //Log.d("hai", "profile: ${response.body()?.status}")
-        return response.body() ?: ProfileResponse(Profile(), InvitationStatus.NONE, emptyList())
+        return response.body()?.ToProfile() ?: Profile(ProfileInfo(), InvitationStatus.NONE, emptyList())
     }
 
-    suspend fun getMyProfile(): ProfileResponse {
+    suspend fun getMyProfile(): Profile {
         val response = appService.getMyProfile()
         if (!response.isSuccessful){
             throw Exception("Failed to get profile")
         }
-        return response.body() ?: ProfileResponse(Profile(), InvitationStatus.NONE,emptyList())
+        return response.body()?.ToProfile() ?: Profile(ProfileInfo(), InvitationStatus.NONE,emptyList())
     }
 
     suspend fun getFriends(): List<FriendshipResponse>{
@@ -189,10 +197,18 @@ class RemoteDataSource @Inject constructor(
         return response.body()?.notifications ?: emptyList()
     }
 
-    suspend fun acceptInvitation(type: NotificationType, groupId: String? = null){
-        val response = appService.acceptInvitation(type, groupId)
+    suspend fun acceptInvitation(type: InvitationType, groupId: String? = null, userId: String){
+        val response = appService.acceptInvitation(type, groupId, userId)
         if (!response.isSuccessful){
             throw Exception("Failed to accept invitation")
+        }
+        return response.body() ?: Unit
+    }
+
+    suspend fun rejectInvitation(type: InvitationType, groupId: String? = null, userId: String){
+        val response = appService.rejectInvitation(type, groupId, userId)
+        if (!response.isSuccessful){
+            throw Exception("Failed to reject invitation")
         }
         return response.body() ?: Unit
     }
@@ -205,5 +221,33 @@ class RemoteDataSource @Inject constructor(
             throw Exception("Failed to unfriend")
         }
         return response.body() ?: Unit
+    }
+
+    suspend fun leaveGroup(
+        groupId: String?
+    ) {
+        val response = appService.leaveGroup(groupId)
+        if (!response.isSuccessful) {
+            throw Exception("Failed to leave group")
+        }
+        return response.body() ?: Unit
+    }
+
+    suspend fun createStory(uri: Uri, context: Context){
+        val multipart = AppUtils.uriToMultipart(context, uri)
+        val response = appService.createStory(multipart)
+        if (!response.isSuccessful){
+            throw Exception("Failed to create story")
+        }
+        return response.body() ?: Unit
+    }
+
+    suspend fun getStories(): List<StoryResponse>{
+        val response = appService.getStories()
+        Log.d("hai", response.body().toString())
+        if (!response.isSuccessful){
+            throw Exception("Failed to get stories")
+        }
+        return response.body()?.stories ?: emptyList()
     }
 }

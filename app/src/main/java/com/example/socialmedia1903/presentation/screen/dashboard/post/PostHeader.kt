@@ -9,12 +9,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,8 +40,14 @@ import com.example.socialmedia1903.domain.model.Post
 fun PostHeader(
     post: Post,
     modifier: Modifier,
-    onClick: () -> Unit
+    onEdit: (Post) -> Unit,
+    onDelete: (Post) -> Unit,
+    onSave: (Post) -> Unit,
+    userId: String
 ) {
+
+    var expanded = remember { mutableStateOf(false) }
+
     Box(
         modifier = modifier
             .fillMaxWidth(),
@@ -108,13 +121,50 @@ fun PostHeader(
                 }
             }
         }
-        Image(
-            painter = painterResource(id = R.drawable.option),
-            contentDescription = null,
+        Box(
             modifier = Modifier
-                .size(20.dp)
-                .align(Alignment.TopEnd)
-                .clickable { onClick() }
-        )
+                .padding(8.dp)
+                .align(Alignment.CenterEnd)
+                .size(24.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.option),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(20.dp)
+                    .clickable { expanded.value = true }
+            )
+
+            DropdownMenu(
+                expanded = expanded.value,
+                onDismissRequest = { expanded.value = false }
+            ) {
+                Log.d("hai", "PostHeader: ${post.authorId}-${userId}")
+                if (userId == post.authorId) {
+                    DropdownMenuItem(
+                        text = { Text("Chỉnh sửa bài viết") },
+                        onClick = {
+                            expanded.value = false
+                            onEdit(post)
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Xóa bài viết") },
+                        onClick = {
+                            expanded.value = false
+                            onDelete(post)
+                        }
+                    )
+                } else {
+                    DropdownMenuItem(
+                        text = { Text("Lưu bài viết") },
+                        onClick = {
+                            expanded.value = false
+                            onSave(post)
+                        }
+                    )
+                }
+            }
+        }
     }
 }

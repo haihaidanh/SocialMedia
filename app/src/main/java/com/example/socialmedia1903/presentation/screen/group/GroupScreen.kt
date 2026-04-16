@@ -82,6 +82,12 @@ fun GroupScreen(
         groupViewModel.getFriends()
     }
 
+    LaunchedEffect(Unit) {
+        dashboardViewModel.getUserId()
+    }
+
+    val userId by dashboardViewModel.userId.collectAsState()
+
     val group by groupViewModel.group.collectAsState()
     val posts by groupViewModel.posts.collectAsState()
     val avatar by dashboardViewModel.avatar.collectAsState()
@@ -263,7 +269,13 @@ fun GroupScreen(
 
                 // Danh sách bài viết (Dùng items thay vì forEach để tối ưu hiệu năng)
                 items(posts) { post ->
-                    PostItem(post, navController = navController)
+                    userId?.let { userId ->
+                        PostItem(
+                            post,
+                            navController = navController,
+                            userId = userId
+                        )
+                    }
                 }
 
                 // Thêm Spacer cuối cùng để tránh bị che bởi lề dưới nếu cần

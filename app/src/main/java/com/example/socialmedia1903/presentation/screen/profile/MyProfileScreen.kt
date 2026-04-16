@@ -55,6 +55,7 @@ import com.example.socialmedia1903.R
 import com.example.socialmedia1903.data.dto.response.UserResponse
 import com.example.socialmedia1903.domain.model.User
 import com.example.socialmedia1903.presentation.screen.dashboard.CustomBottomBarWithFab
+import com.example.socialmedia1903.presentation.screen.dashboard.DashboardViewModel
 import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItem
 
 
@@ -62,11 +63,18 @@ import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItem
 fun MyProfileScreen(
     navController: NavController,
     profileViewModel: ProfileViewModel = hiltViewModel(),
+    dashboardViewModel: DashboardViewModel = hiltViewModel(),
     padding: PaddingValues
 ) {
     LaunchedEffect(Unit) {
         profileViewModel.getMyProfile()
     }
+
+    LaunchedEffect(Unit) {
+        dashboardViewModel.getUserId()
+    }
+
+    val userId by dashboardViewModel.userId.collectAsState()
 
     val scroll = rememberScrollState()
     val profile by profileViewModel.profile.collectAsState()
@@ -120,7 +128,8 @@ fun MyProfileScreen(
                         .padding(start = 16.dp, bottom = 30.dp)
                         .size(80.dp)
                         .clip(CircleShape)
-                        .border(3.dp, Color.LightGray, CircleShape)
+                        .background(Color.White)
+                        .border(3.dp, Color.White, CircleShape)
                         .align(Alignment.BottomStart)
                 )
             }
@@ -203,12 +212,15 @@ fun MyProfileScreen(
                         modifier = Modifier
                             .padding(10.dp)
                     )
-                    Log.d("hai", "posts: ${posts.size}")
+                    //Log.d("hai", "posts: ${posts.size}")
                     posts.forEach { post ->
+                        userId?.let {
                         PostItem(
                             post = post,
-                            navController = navController
-                        )
+                            navController = navController,
+                            userId = it
+                        )}
+
                     }
                 }
 

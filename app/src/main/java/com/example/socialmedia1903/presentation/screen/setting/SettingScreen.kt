@@ -69,7 +69,7 @@ fun SettingScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = stringResource(R.string.dashboard),
+                    text = stringResource(R.string.language),
                     style = MaterialTheme.typography.bodyLarge
                 )
 

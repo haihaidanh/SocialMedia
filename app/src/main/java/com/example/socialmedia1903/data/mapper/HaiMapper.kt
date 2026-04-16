@@ -138,7 +138,8 @@ object HaiMapper {
             likeCount = this.likeCount,
             commentCount = this.commentCount,
             sharedCount = this.sharedCount,
-            group = this.Group?.toGroupInfo()
+            group = this.Group?.toGroupInfo(),
+            isOwnPost = this.isOwnPost
         )
     }
 

@@ -59,11 +59,11 @@ import kotlinx.coroutines.launch
 fun PostItem(
     post: Post,
     postViewModel: PostViewModel = hiltViewModel(),
-    navController: NavController
+    navController: NavController,
+    userId: String
 ) {
 
     var likeCount by remember { mutableStateOf(post.likeCount) }
-    //Log.d("hai", post.type)
     val icon = if (post.likes.isNotEmpty()) {
         ReactionType.entries.find { it.title == post.likes[0].type }?.icon
     } else {
@@ -78,6 +78,7 @@ fun PostItem(
     val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
     val friends by postViewModel.friends.collectAsState()
+
 
     LaunchedEffect(showBottomSheet) {
         if (showBottomSheet) {
@@ -117,12 +118,14 @@ fun PostItem(
                     }
                 }
         ) {
+
             PostHeader(
                 post = post,
                 modifier = Modifier,
-                onClick = {
-
-                }
+                userId = userId,
+                onEdit = {},
+                onDelete = {},
+                onSave = {}
             )
             Box(
                 modifier = Modifier

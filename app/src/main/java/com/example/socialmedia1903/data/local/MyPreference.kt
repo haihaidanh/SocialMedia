@@ -19,6 +19,7 @@ class MyPreference @Inject constructor(
             .putString("name", logInResponse.name)
             .putString("avatarUrl", logInResponse.avatarUrl)
             .putString("username", logInResponse.username)
+            .putString("id", logInResponse.id)
             .apply()
     }
 
@@ -45,5 +46,8 @@ class MyPreference @Inject constructor(
         prefs.edit().clear().apply()
     }
 
+    fun getUserId(): String? {
+        return prefs.getString("id", null)
+    }
 
 }

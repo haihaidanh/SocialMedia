@@ -66,38 +66,28 @@ fun DashboardScreen(
     navController: NavController,
     padding: PaddingValues
 ) {
-    val token by dashboardViewModel.token.collectAsState()
-    val checkLogIn by dashboardViewModel.checkLogIn.collectAsState()
-
-    LaunchedEffect(Unit) {
-        dashboardViewModel.getToken()
-    }
-
-    LaunchedEffect(token, checkLogIn) {
-        if (!checkLogIn && token == null) {
-            navController.navigate("login") {
-                popUpTo(0) { inclusive = true }
-            }
-        }
-    }
 
     LaunchedEffect(Unit) {
         storyViewModel.getStories()
     }
 
-    val stories by storyViewModel.stories.collectAsState()
-    //Log.d("hai", stories.size.toString())
-
     LaunchedEffect(Unit) {
         dashboardViewModel.getAvatar()
     }
 
+    val stories by storyViewModel.stories.collectAsState()
+
     val posts: LazyPagingItems<Post> = dashboardViewModel.posts.collectAsLazyPagingItems()
-    Log.d("hai", "Posts count: ${posts.itemCount}")
+    //Log.d("hai", "Posts count: ${posts.itemCount}")
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val avatar by dashboardViewModel.avatar.collectAsState()
 
+    LaunchedEffect(Unit) {
+        dashboardViewModel.getUserId()
+    }
+
+    val userId by dashboardViewModel.userId.collectAsState()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -130,11 +120,13 @@ fun DashboardScreen(
                 state = swipeRefreshState,
                 onRefresh = { posts.refresh() } // 🔹 đây là quan trọng
             ) {
-                LazyColumn(modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                ) {
 
-                    item{
+                    item {
                         LazyRow(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -150,8 +142,8 @@ fun DashboardScreen(
                                         .padding(start = 10.dp)
                                 )
                             }
-                            if(stories.isNotEmpty()){
-                                items(stories){ story ->
+                            if (stories.isNotEmpty()) {
+                                items(stories) { story ->
                                     StoryItem(
                                         avatarUrl = story.user.avatarUrl,
                                         thumbnail = story.thumbnail,
@@ -179,7 +171,15 @@ fun DashboardScreen(
 
                     items(count = posts.itemCount) { index ->
                         val post = posts[index]
-                        post?.let { PostItem(it, navController = navController) }
+                        post?.let {
+                            userId?.let { userId ->
+                                PostItem(
+                                    it,
+                                    navController = navController,
+                                    userId = userId
+                                )
+                            }
+                        }
                     }
                     posts.apply {
                         when {

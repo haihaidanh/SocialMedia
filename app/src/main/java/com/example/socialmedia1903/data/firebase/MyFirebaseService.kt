@@ -16,11 +16,13 @@ class MyFirebaseService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
-        Log.d("FCM", message.notification?.body!!)
-        val title = message.notification?.title
-        val body = message.notification?.body
+        val title = message.data["title"]
+        val body = message.data["body"]
+        val imageUrl = message.data["imageUrl"]
 
-        showNotification(applicationContext, title, body)
+        Log.d("hai", message.data.toString())
+
+        showNotification(applicationContext, title, body, imageUrl)
     }
 
     override fun onNewToken(token: String) {

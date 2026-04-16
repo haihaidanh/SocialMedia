@@ -21,5 +21,6 @@ data class Post(
     val comments: List<Comment> = emptyList(),
     val likes: List<Like> = emptyList(),
     val media: List<Media> = emptyList(),
-    val group: GroupInfo? = null
+    val group: GroupInfo? = null,
+    val isOwnPost: Boolean = false
 )

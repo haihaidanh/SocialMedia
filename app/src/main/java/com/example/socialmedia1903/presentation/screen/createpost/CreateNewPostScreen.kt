@@ -100,7 +100,6 @@ fun CreateNewPostScreen(
         }
     }
 
-    Log.d("hai", isSavePost.toString())
 
     var postType by remember { mutableStateOf(PostType.TEXT) }
 
@@ -239,7 +238,7 @@ fun CreateNewPostScreen(
                             model = ImageRequest.Builder(context)
                                 .data(uri)
                                 .crossfade(true)
-                                .videoFrameMillis(0) // 🔥 quan trọng
+                                .videoFrameMillis(0)
                                 .build(),
                             contentDescription = null,
                             modifier = Modifier
@@ -282,8 +281,8 @@ fun CreateNewPostScreen(
         Box(
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
-        ){
-            if(loading.value) {
+        ) {
+            if (loading.value) {
                 CircularProgressIndicator()
             } else {
                 Button(
@@ -301,9 +300,6 @@ fun CreateNewPostScreen(
                                 visibility = "public",
                                 context = context
                             )
-
-                            //createPostViewModel.clearAllImages()
-                            //navController.popBackStack()
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
@@ -318,8 +314,5 @@ fun CreateNewPostScreen(
             }
 
         }
-
-
-
     }
 }

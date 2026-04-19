@@ -30,10 +30,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.socialmedia1903.data.dto.response.NotificationResponse
+import com.example.socialmedia1903.domain.model.Notification
 
 @Composable
 fun AddFriendItem(
-    item: NotificationResponse,
+    item: Notification,
     onAccept: () -> Unit,
     onReject: () -> Unit,
     onItemClick: () -> Unit
@@ -49,7 +50,7 @@ fun AddFriendItem(
 
         // Avatar
         AsyncImage(
-            model = item.User.avatarUrl,
+            model = item.user.avatarUrl,
             contentDescription = "avatar",
             modifier = Modifier
                 .size(50.dp)
@@ -65,7 +66,7 @@ fun AddFriendItem(
 
             // Name + content
             Text(
-                text = item.User.name,
+                text = item.user.name,
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
                 modifier = Modifier

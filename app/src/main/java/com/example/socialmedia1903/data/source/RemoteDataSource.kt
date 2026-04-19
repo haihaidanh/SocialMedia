@@ -31,7 +31,9 @@ import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import com.example.socialmedia1903.data.mapper.HaiMapper.ToProfile
+import com.example.socialmedia1903.data.mapper.HaiMapper.toNotificationList
 import com.example.socialmedia1903.data.mapper.HaiMapper.toSearchResult
+import com.example.socialmedia1903.domain.model.Notification
 import com.example.socialmedia1903.domain.model.ProfileInfo
 import com.example.socialmedia1903.domain.model.SearchResult
 
@@ -189,12 +191,12 @@ class RemoteDataSource @Inject constructor(
         return response.body() ?: Unit
     }
 
-    suspend fun getNotifications(): List<NotificationResponse>{
+    suspend fun getNotifications(): List<Notification>{
         val response = appService.getNotifications()
         if (!response.isSuccessful){
             throw Exception("Failed to get notifications")
         }
-        return response.body()?.notifications ?: emptyList()
+        return response.body()?.notifications?.toNotificationList() ?: emptyList()
     }
 
     suspend fun acceptInvitation(type: InvitationType, groupId: String? = null, userId: String){

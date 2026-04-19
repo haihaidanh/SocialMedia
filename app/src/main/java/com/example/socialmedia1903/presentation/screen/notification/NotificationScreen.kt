@@ -108,7 +108,7 @@ fun NotificationScreen(
                         NotificationType.INVITE_GROUP -> {
                             InviteGroupItem(
                                 notification.groupAvatar ?: "",
-                                notification.User.avatarUrl,
+                                notification.user.avatarUrl,
                                 notification.groupName ?: "",
                                 onAccept = {
                                     Log.d("hai", notification.groupId ?: "")

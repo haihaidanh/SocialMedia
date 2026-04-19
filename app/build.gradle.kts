@@ -5,6 +5,7 @@ plugins {
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
     id("com.google.gms.google-services")
+    id("kotlin-kapt")
 }
 
 android {
@@ -25,6 +26,9 @@ android {
 
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas")
+        }
+        kapt {
+            correctErrorTypes = true
         }
     }
 
@@ -48,9 +52,7 @@ android {
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
-    }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -98,9 +100,9 @@ dependencies {
     // Optional: Room Testing
     testImplementation("androidx.room:room-testing:$roomVersion")
 
-    val hiltVersion = "2.52"
+    val hiltVersion = "2.56"
     implementation("com.google.dagger:hilt-android:$hiltVersion")
-    ksp("com.google.dagger:hilt-android-compiler:$hiltVersion") // KSP Processor
+    //ksp("com.google.dagger:hilt-android-compiler:$hiltVersion")
 
     // Hilt Navigation Compose (Required for hiltViewModel() in Compose)
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
@@ -152,4 +154,18 @@ dependencies {
 
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
+
+    val workVersion = "2.10.0"
+    val hiltExtensionVersion = "1.2.0"
+
+    // WorkManager (Kotlin + Coroutines)
+    implementation("androidx.work:work-runtime-ktx:$workVersion")
+
+    // Hilt extension cho WorkManager
+    implementation("androidx.hilt:hilt-work:$hiltExtensionVersion")
+
+    // Annotation Processor cho Hilt Work (Sử dụng KSP)
+    //ksp("androidx.hilt:hilt-compiler:$hiltExtensionVersion")
+    kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
+    kapt("androidx.hilt:hilt-compiler:$hiltExtensionVersion")
 }

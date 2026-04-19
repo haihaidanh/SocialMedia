@@ -1,10 +1,13 @@
 package com.example.socialmedia1903.presentation.screen.createpost
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkManager
 import com.example.socialmedia1903.data.source.LocalDataSource
 import com.example.socialmedia1903.domain.enums.PostType
+import com.example.socialmedia1903.domain.model.Post
 import com.example.socialmedia1903.domain.usecase.CreatePostUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,8 +41,6 @@ class CreatePostViewModel @Inject constructor(
         }
     }
 
-
-
     fun createPost(
         postId: String,
         content: String,
@@ -49,31 +50,66 @@ class CreatePostViewModel @Inject constructor(
         anonymous: Boolean,
         visibility: String,
         context: Context
-    ){
+    ) {
+        val post = Post(
+            id = postId,
+            content = content,
+            type = type,
+            groupId = groupId,
+            contentType = contentType,
+            anonymous = anonymous,
+            visibility = visibility,
+        )
+
+
         viewModelScope.launch {
-            _isSavePost.value = false
-            val result = createPostUseCase(
-                postId = postId,
-                content = content,
-                type = type,
-                groupId = groupId,
-                contentType = contentType,
-                anonymous = anonymous,
-                visibility = visibility
-            )
-            //_isSavePost.value = result
-            if(result){
-
-                val isDone =  createPostUseCase.uploadFile(context, postId)
-                if(isDone){
-                    clearAllImages()
-                    _isSavePost.value = true
+            val workId = createPostUseCase(post)
+            WorkManager.getInstance(context)
+                .getWorkInfoByIdLiveData(workId).observeForever { workInfo ->
+                    if (workInfo != null) {
+                        if (workInfo.state.isFinished) {
+                            _isSavePost.value = true
+                        }
+                    }
                 }
-
-            }else{
-                _isSavePost.value = false
-            }
-
         }
     }
+
+
+//    fun createPost(
+//        postId: String,
+//        content: String,
+//        type: PostType,
+//        groupId: String?,
+//        contentType: String,
+//        anonymous: Boolean,
+//        visibility: String,
+//        context: Context
+//    ){
+//        viewModelScope.launch {
+//            _isSavePost.value = false
+//            val result = createPostUseCase(
+//                postId = postId,
+//                content = content,
+//                type = type,
+//                groupId = groupId,
+//                contentType = contentType,
+//                anonymous = anonymous,
+//                visibility = visibility
+//            )
+//            //_isSavePost.value = result
+//            if(result){
+//
+//                val isDone =  createPostUseCase.uploadFile(context, postId)
+//                if(isDone){
+//                    clearAllImages()
+//                    _isSavePost.value = true
+//                }
+//
+//            }else{
+//                _isSavePost.value = false
+//            }
+//
+//        }
+//    }
 }

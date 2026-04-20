@@ -26,8 +26,8 @@ class DashboardViewModel @Inject constructor(
     private val remoteDataSource: RemoteDataSource
 ) : ViewModel() {
 
-    private val _token = MutableStateFlow<String?>(null)
-    val token: StateFlow<String?> = _token
+    private val _userId = MutableStateFlow<String?>(null)
+    val userId: StateFlow<String?> = _userId
 
     private val _name = MutableStateFlow<String?>(null)
     val name: StateFlow<String?> = _name
@@ -59,12 +59,6 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    fun getToken() {
-        viewModelScope.launch {
-            _token.value = myPreference.getAccessToken()
-            _checkLogIn.value = false
-        }
-    }
 
     fun getName() {
         viewModelScope.launch {
@@ -83,5 +77,12 @@ class DashboardViewModel @Inject constructor(
             _avatar.value = myPreference.getAvatarUrl()
         }
     }
+
+    fun getUserId() {
+        viewModelScope.launch {
+            _userId.value = myPreference.getUserId()
+        }
+    }
+
 
 }

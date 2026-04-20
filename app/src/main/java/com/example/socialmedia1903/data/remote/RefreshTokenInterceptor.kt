@@ -1,5 +1,6 @@
 package com.example.socialmedia1903.data.remote
 
+import com.example.socialmedia1903.data.dto.response.LogInResponse
 import com.example.socialmedia1903.data.local.MyPreference
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -49,10 +50,18 @@ class RefreshTokenInterceptor(
 
                 val newAccess = body?.accessToken
                 val newRefresh = body?.refreshToken
-                //val newName = body?.
+                val newName = body?.name
+                val newAvatar = body?.avatar
 
                 if (!newAccess.isNullOrEmpty() && !newRefresh.isNullOrEmpty()) {
-                    //localDataSource.saveTokens(newAccess, newRefresh)
+                    myPreference.saveTokens(
+                        LogInResponse(
+                            accessToken = newAccess,
+                            refreshToken = newRefresh,
+                            name = newName ?: "",
+                            avatarUrl = newAvatar ?: ""
+                        )
+                    )
                     newAccess
                 } else null
 

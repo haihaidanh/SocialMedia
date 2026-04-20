@@ -34,6 +34,7 @@ import com.example.socialmedia1903.presentation.screen.search.SearchScreen
 import com.example.socialmedia1903.presentation.screen.setting.SettingScreen
 import com.example.socialmedia1903.presentation.screen.setting.SettingsViewModel
 import com.example.socialmedia1903.presentation.screen.signup.SignUpScreen
+import com.example.socialmedia1903.presentation.screen.splash.SplashScreen
 import com.example.socialmedia1903.presentation.screen.story.PreviewVideoScreen
 import com.example.socialmedia1903.ui.theme.Socialmedia1903Theme
 import dagger.hilt.android.AndroidEntryPoint
@@ -80,8 +81,14 @@ fun mainScreen() {
     ) { padding ->
         NavHost(
             navController = navController,
-            startDestination = "home"
+            startDestination = "splash"
         ) {
+
+            composable("splash") {
+                SplashScreen(
+                    navController = navController
+                )
+            }
 
             composable("login") {
                 LoginScreen(navController = navController, paddingValues = padding)

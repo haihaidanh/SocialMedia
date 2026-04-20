@@ -8,6 +8,7 @@ import com.example.socialmedia1903.data.dto.response.GroupResponse
 import com.example.socialmedia1903.data.dto.response.LikeResponse
 import com.example.socialmedia1903.data.dto.response.MediaResponse
 import com.example.socialmedia1903.data.dto.response.MemberResponse
+import com.example.socialmedia1903.data.dto.response.NotificationResponse
 import com.example.socialmedia1903.data.dto.response.PostResponse
 import com.example.socialmedia1903.data.dto.response.ProfileInfoResponse
 import com.example.socialmedia1903.data.dto.response.ProfileResponse
@@ -22,6 +23,7 @@ import com.example.socialmedia1903.domain.model.GroupInfo
 import com.example.socialmedia1903.domain.model.Like
 import com.example.socialmedia1903.domain.model.Media
 import com.example.socialmedia1903.domain.model.Member
+import com.example.socialmedia1903.domain.model.Notification
 import com.example.socialmedia1903.domain.model.Post
 import com.example.socialmedia1903.domain.model.Profile
 import com.example.socialmedia1903.domain.model.ProfileInfo
@@ -119,6 +121,30 @@ object HaiMapper {
         )
     }
 
+    fun NotificationResponse.toNotification(): Notification {
+        return Notification(
+            id = this.id,
+            userId = this.userId,
+            destinationId = this.destinationId,
+            resourceId = this.resourceId,
+            from = this.from,
+            type = this.type,
+            createdAt = this.createdAt,
+            updatedAt = this.updatedAt,
+            user = this.User.toUser(),
+            groupId = this.groupId,
+            groupAvatar = this.groupAvatar,
+            groupName = this.groupName,
+            likeType = this.likeType,
+            postContent = this.postContent,
+            commentContent = this.commentContent
+        )
+    }
+
+    fun List<NotificationResponse>.toNotificationList(): List<Notification> {
+        return this.map { it.toNotification() }
+    }
+
     fun PostResponse.toPost(): Post {
         return Post(
             id = this.id,
@@ -138,7 +164,8 @@ object HaiMapper {
             likeCount = this.likeCount,
             commentCount = this.commentCount,
             sharedCount = this.sharedCount,
-            group = this.Group?.toGroupInfo()
+            group = this.Group?.toGroupInfo(),
+            isOwnPost = this.isOwnPost
         )
     }
 

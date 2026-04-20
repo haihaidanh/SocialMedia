@@ -6,7 +6,7 @@ import com.example.socialmedia1903.data.model.ErrLogIn
 import com.example.socialmedia1903.data.local.MyPreference
 import com.example.socialmedia1903.domain.usecase.GoogleSignInUseCase
 import com.example.socialmedia1903.domain.usecase.LogInUseCase
-import com.example.socialmedia1903.presentation.state.AuthState
+import com.example.socialmedia1903.presentation.screen.splash.AuthState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,8 +25,20 @@ class LogInViewModel @Inject constructor(
     private val _error = MutableStateFlow(ErrLogIn())
     val error: StateFlow<ErrLogIn> = _error
 
-    private val _state = MutableStateFlow<AuthState>(AuthState.Idle)
-    val state: StateFlow<AuthState> = _state
+    private var _authState = MutableStateFlow<AuthState>(AuthState.Loading)
+    var authState: StateFlow<AuthState> = _authState
+
+    fun checkLogin() {
+        viewModelScope.launch {
+            val token = myPreference.getAccessToken()
+
+            _authState.value = if (token.isNullOrEmpty()) {
+                AuthState.NotLoggedIn
+            } else {
+                AuthState.LoggedIn
+            }
+        }
+    }
 
     fun logIn(name: String, password: String){
         viewModelScope.launch {

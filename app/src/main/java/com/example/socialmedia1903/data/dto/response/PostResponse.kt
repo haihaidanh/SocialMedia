@@ -21,5 +21,6 @@ data class PostResponse(
     val Comments: List<CommentResponse> = emptyList(),
     val Likes: List<LikeResponse> = emptyList(),
     val Media: List<MediaResponse> = emptyList(),
-    val Group: GroupInfoResponse? = null
+    val Group: GroupInfoResponse? = null,
+    val isOwnPost: Boolean = false
 )

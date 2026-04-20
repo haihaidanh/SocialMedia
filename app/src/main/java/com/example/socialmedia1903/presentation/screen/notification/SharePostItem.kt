@@ -22,11 +22,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.socialmedia1903.data.dto.response.NotificationResponse
+import com.example.socialmedia1903.domain.model.Notification
 
 
 @Composable
 fun SharePostItem(
-    notificationResponse: NotificationResponse,
+    notificationResponse: Notification,
     onClick: () -> Unit
 ) {
     Column(
@@ -44,7 +45,7 @@ fun SharePostItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = notificationResponse.User.avatarUrl,
+                model = notificationResponse.user.avatarUrl,
                 contentDescription = null,
                 modifier = Modifier
                     .size(42.dp)
@@ -56,7 +57,7 @@ fun SharePostItem(
             Column {
                 Row {
                     Text(
-                        text = notificationResponse.User.name,
+                        text = notificationResponse.user.name,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.width(4.dp))

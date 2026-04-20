@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,8 +30,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -47,7 +51,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -81,7 +87,6 @@ fun CreateNewPostScreen(
     val userName by dashboardViewModel.name.collectAsState()
 
 
-
     var content by remember { mutableStateOf("") }
     var selectedImages by remember { mutableStateOf<List<String>>(emptyList()) }
     val context = LocalContext.current
@@ -89,17 +94,16 @@ fun CreateNewPostScreen(
     val isSavePost by createPostViewModel.isSavePost.collectAsState()
 
     LaunchedEffect(isSavePost) {
-        if(isSavePost){
+        if (isSavePost) {
             Toast.makeText(context, "Post created successfully!", Toast.LENGTH_SHORT).show()
             navController.popBackStack()
         }
     }
 
-    Log.d("hai", isSavePost.toString())
 
     var postType by remember { mutableStateOf(PostType.TEXT) }
 
-    if(selectedImages.isNotEmpty()){
+    if (selectedImages.isNotEmpty()) {
         postType = PostType.MEDIA
     }
 
@@ -164,23 +168,59 @@ fun CreateNewPostScreen(
             )
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Pick images
-        Button(onClick = {
-            mediaPickerLauncher.launch(
-                PickVisualMediaRequest(
-                    ActivityResultContracts.PickVisualMedia.ImageAndVideo // 🔥 cả ảnh + video
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            OutlinedButton(
+                onClick = {
+                    mediaPickerLauncher.launch(
+                        PickVisualMediaRequest(
+                            ActivityResultContracts.PickVisualMedia.ImageAndVideo
+                        )
+                    )
+                },
+                border = BorderStroke(1.dp, color = colorResource(id = R.color.base)),
+                shape = RoundedCornerShape(30.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onBackground
                 )
-            )
-        }) {
-            Text("Chọn ảnh")
+            ) {
+                Text(
+                    stringResource(R.string.choose_image),
+                    color = colorResource(id = R.color.base)
+                )
+            }
+
+            OutlinedButton(
+                onClick = {
+
+                },
+                border = BorderStroke(1.dp, color = colorResource(id = R.color.base)),
+                shape = RoundedCornerShape(30.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                )
+            ) {
+                Text(stringResource(R.string.everyone), color = colorResource(id = R.color.base))
+            }
+
+            OutlinedButton(
+                onClick = {
+
+                },
+                border = BorderStroke(1.dp, color = colorResource(id = R.color.base)),
+                shape = RoundedCornerShape(30.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                )
+            ) {
+                Text(stringResource(R.string.feeling), color = colorResource(id = R.color.base))
+            }
+
+
         }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
         if (selectedImages.isNotEmpty()) {
             LazyRow {
                 items(selectedImages) { uri ->
@@ -198,7 +238,7 @@ fun CreateNewPostScreen(
                             model = ImageRequest.Builder(context)
                                 .data(uri)
                                 .crossfade(true)
-                                .videoFrameMillis(0) // 🔥 quan trọng
+                                .videoFrameMillis(0)
                                 .build(),
                             contentDescription = null,
                             modifier = Modifier
@@ -236,32 +276,43 @@ fun CreateNewPostScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Actions
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ) {
-            Button(onClick = {
-                if(isSaveToRoom){
-                    val posId = UUID.randomUUID().toString()
-                    createPostViewModel.createPost(
-                        postId = posId,
-                        content = content,
-                        type = postType,
-                        groupId = groupId,
-                        contentType = "plain",
-                        anonymous = false,
-                        visibility = "public",
-                        context = context
-                    )
+        val loading = remember { mutableStateOf(false) }
 
-                    //createPostViewModel.clearAllImages()
-                    //navController.popBackStack()
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            if (loading.value) {
+                CircularProgressIndicator()
+            } else {
+                Button(
+                    onClick = {
+                        loading.value = true
+                        if (isSaveToRoom) {
+                            val posId = UUID.randomUUID().toString()
+                            createPostViewModel.createPost(
+                                postId = posId,
+                                content = content,
+                                type = postType,
+                                groupId = groupId,
+                                contentType = "plain",
+                                anonymous = false,
+                                visibility = "public",
+                                context = context
+                            )
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = isSaveToRoom,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isSaveToRoom) colorResource(id = R.color.base) else Color.Gray,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text(stringResource(R.string.post))
                 }
-            },
-                enabled = isSaveToRoom) {
-                Text("Post")
             }
+
         }
     }
 }

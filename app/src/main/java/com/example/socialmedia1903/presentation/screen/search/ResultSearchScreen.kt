@@ -30,16 +30,18 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.socialmedia1903.R
+import com.example.socialmedia1903.presentation.screen.dashboard.DashboardViewModel
 import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItem
 
 @Composable
 fun ResultSearchScreen(
     navController: NavController,
     viewModel: SearchViewModel = hiltViewModel(),
+    dashboardViewModel: DashboardViewModel = hiltViewModel(),
     query: String
 ) {
     BackHandler {
-        navController.navigate("home"){
+        navController.navigate("home") {
             popUpTo(0)
         }
     }
@@ -51,6 +53,13 @@ fun ResultSearchScreen(
     LaunchedEffect(Unit) {
         viewModel.onQueryChange(query)
     }
+
+    LaunchedEffect(Unit) {
+        dashboardViewModel.getUserId()
+    }
+
+    val userId = dashboardViewModel.userId.collectAsState().value
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -115,10 +124,13 @@ fun ResultSearchScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 posts.forEach { post ->
-                    PostItem(
-                        post,
-                        navController = navController
-                    )
+                    userId?.let {
+                        PostItem(
+                            post,
+                            navController = navController,
+                            userId = it
+                        )
+                    }
                 }
 
             }

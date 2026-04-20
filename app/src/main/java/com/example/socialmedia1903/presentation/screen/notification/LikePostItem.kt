@@ -27,11 +27,12 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.socialmedia1903.R
 import com.example.socialmedia1903.data.dto.response.NotificationResponse
+import com.example.socialmedia1903.domain.model.Notification
 
 
 @Composable
 fun LikePostItem(
-    notificationResponse: NotificationResponse,
+    notificationResponse: Notification,
     onClick: () -> Unit
 ) {
     Column(
@@ -53,7 +54,7 @@ fun LikePostItem(
                     .size(50.dp)
             ) {
             AsyncImage(
-                model = notificationResponse.User.avatarUrl,
+                model = notificationResponse.user.avatarUrl,
                 contentDescription = null,
                 modifier = Modifier
                     .size(35.dp)
@@ -96,7 +97,7 @@ fun LikePostItem(
             Column {
                 Row {
                     Text(
-                        text = notificationResponse.User.name,
+                        text = notificationResponse.user.name,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.width(4.dp))

@@ -17,7 +17,6 @@ class SocketManager {
 
         socket = IO.socket("http://10.0.2.2:8080", opts)
 
-        // 🔥 Đăng ký trước
         socket?.on(Socket.EVENT_CONNECT) {
             Log.d("SOCKET", "CONNECTED")
             socket?.emit("join_post", postId)

@@ -43,6 +43,7 @@ import coil.compose.AsyncImage
 import com.example.socialmedia1903.R
 import com.example.socialmedia1903.domain.enums.InvitationStatus
 import com.example.socialmedia1903.domain.enums.InvitationType
+import com.example.socialmedia1903.presentation.screen.dashboard.DashboardViewModel
 import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItem
 
 
@@ -51,6 +52,7 @@ fun ProfileScreen(
     navController: NavController,
     profileViewModel: ProfileViewModel = hiltViewModel(),
     invitationViewModel: InvitationViewModel = hiltViewModel(),
+    dashboardViewModel: DashboardViewModel = hiltViewModel(),
     id: String
 ) {
 
@@ -59,6 +61,12 @@ fun ProfileScreen(
             popUpTo(0)
         }
     }
+
+    LaunchedEffect(Unit) {
+        dashboardViewModel.getUserId()
+    }
+
+    val userId by dashboardViewModel.userId.collectAsState()
 
     LaunchedEffect(Unit) {
         profileViewModel.getProfile(id)
@@ -97,7 +105,8 @@ fun ProfileScreen(
                 profileViewModel.unFriend(id)
                 profileViewModel.setStatus(InvitationStatus.NONE)
                 showUnfriendDialog = false
-            })),
+            })
+        ),
         onDismiss = {
             showUnfriendDialog = false
         },
@@ -211,7 +220,7 @@ fun ProfileScreen(
                 ) {
                     Text(text = "Đã gửi lời mời kết bạn")
                 }
-             }else if(status == InvitationStatus.INVITED){
+            } else if (status == InvitationStatus.INVITED) {
                 Button(
                     onClick = {
                         showResponseDialog = true
@@ -223,8 +232,7 @@ fun ProfileScreen(
                 ) {
                     Text(text = "Phản hồi")
                 }
-             }
-            else {
+            } else {
                 Button(
                     onClick = {
                         profileViewModel.setStatus(InvitationStatus.PENDING)
@@ -272,10 +280,13 @@ fun ProfileScreen(
             )
             Log.d("hai", "posts: ${posts.size}")
             posts.forEach { post ->
-                PostItem(
-                    post = post,
-                    navController = navController
-                )
+                userId?.let { userId ->
+                    PostItem(
+                        post = post,
+                        navController = navController,
+                        userId = userId
+                    )
+                }
             }
 
         }

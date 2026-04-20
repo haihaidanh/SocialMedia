@@ -16,9 +16,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,7 +41,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -42,6 +51,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.socialmedia1903.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateGroupScreen(
     navController: NavController,
@@ -67,45 +77,20 @@ fun CreateGroupScreen(
         imageUri = uri
     }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .background(MaterialTheme.colorScheme.background)
     ) {
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(R.drawable.baseline_arrow_back_ios_new_24),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(10.dp)
-                    .size(30.dp)
-                    .clickable{
-                        navController.popBackStack()
-                    }
-            )
-
-            Text(
-                text = "Tạo nhóm",
-                fontSize = 20.sp,
-            )
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // Avatar group
         Box(
             modifier = Modifier
-                .size(120.dp)
-                .clip(CircleShape)
+                .fillMaxWidth()
+                .height(150.dp)
                 .background(Color.LightGray)
-                .clickable {
-                    launcher.launch("image/*")
-                },
+                .clickable { launcher.launch("image/*") },
             contentAlignment = Alignment.Center
-        ) {
+        ){
             if (imageUri != null) {
                 AsyncImage(
                     model = imageUri,
@@ -114,44 +99,97 @@ fun CreateGroupScreen(
                     contentScale = ContentScale.Crop
                 )
             } else {
-                Text("Chọn ảnh")
+                Text(stringResource(R.string.choose_image))
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Column(
+            modifier = Modifier
+                .height(650.dp)
+                .align(Alignment.BottomCenter)
+                .clip(
+                    RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+                )
+                .background(
+                    color = MaterialTheme.colorScheme.surface,
+                )
+        ) {
 
-        // Tên nhóm
-        OutlinedTextField(
-            value = groupName,
-            onValueChange = { groupName = it },
-            label = { Text("Tên nhóm") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // Trạng thái
-        Text(text = "Trạng thái")
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            RadioButton(
-                selected = isPublic,
-                onClick = { isPublic = true }
+            OutlinedTextField(
+                value = groupName,
+                onValueChange = { groupName = it },
+                label = { Text(stringResource(R.string.group_name)) },
+                modifier = Modifier
+                    .padding(horizontal = 30.dp)
+                    .padding(vertical = 10.dp)
+                    .fillMaxWidth()
             )
-            Text("Công khai")
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            val options = listOf("Công khai", "Riêng tư")
+            var expanded by remember { mutableStateOf(false) }
+            var selected by remember { mutableStateOf(options[0]) }
+
+            Column {
+
+                Text(stringResource(R.string.status), fontSize = 16.sp, modifier = Modifier.padding(start = 16.dp))
+
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded }
+                ) {
+
+                    OutlinedTextField(
+                        value = selected,
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                        },
+                        modifier = Modifier.menuAnchor(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color.Transparent,
+                            unfocusedBorderColor = Color.Transparent,
+                            disabledBorderColor = Color.Transparent
+                        )
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        options.forEach { option ->
+                            DropdownMenuItem(
+                                text = { Text(option) },
+                                onClick = {
+                                    selected = option
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(16.dp)
+        ) {
+            Image(
+                painter = painterResource(R.drawable.baseline_arrow_back_ios_new_24),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable {
+                        navController.popBackStack()
+                    }
+            )
         }
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            RadioButton(
-                selected = !isPublic,
-                onClick = { isPublic = false }
-            )
-            Text("Riêng tư")
-        }
-
-        Spacer(modifier = Modifier.height(30.dp))
-
-        // Button tạo nhóm
         Button(
             onClick = {
                 groupViewModel.createGroup(
@@ -161,9 +199,15 @@ fun CreateGroupScreen(
                     avatarUri = imageUri ?: Uri.EMPTY
                 )
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter),
+            colors = ButtonDefaults.buttonColors(
+                colorResource(id = R.color.base)
+            ),
         ) {
-            Text("Tạo nhóm")
+            Text(stringResource(R.string.create_group))
         }
     }
 }

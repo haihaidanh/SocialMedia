@@ -3,5 +3,58 @@
     <string name="app_name">socialmedia1903</string>
 
     <string name="home">Trang chủ</string>
-    <string name="dashboard">Bảng điều khiển</string>
+    <string name="search">Tìm kiếm</string>
+    <string name="profile">Cá nhân</string>
+    <string name="create_post">Tạo bài viết</string>
+    <string name="group">Nhóm</string>
+    <string name="notification">Thông báo</string>
+    <string name="setting">Cài đặt</string>
+
+    <string name="post">Bài viết</string>
+    <string name="comment">Bình luận</string>
+    <string name="like">Thích</string>
+    <string name="share">Chia sẻ</string>
+    <string name="reply">Trả lời</string>
+
+    <string name="edit">Chỉnh sửa</string>
+    <string name="delete">Xóa</string>
+    <string name="save">Lưu</string>
+    <string name="cancel">Hủy</string>
+    <string name="send">Gửi</string>
+    <string name="back">Quay lại</string>
+
+    <string name="share_to">Chia sẻ tới</string>
+    <string name="share_with">Chia sẻ với</string>
+
+    <string name="create_group">Tạo nhóm</string>
+    <string name="my_groups">Nhóm của tôi</string>
+    <string name="settings">Cài đặt</string>
+    <string name="dark_mode">Chế độ tối</string>
+    <string name="language">Ngôn ngữ</string>
+    <string name="no_notifications">Không có thông báo</string>
+    <string name="description">Mô tả</string>
+    <string name="friends">Bạn bè</string>
+    <string name="all">Tất cả</string>
+    <string name="info">Thông tin</string>
+    <string name="photos">Ảnh</string>
+    <string name="shared_with_you">Đã chia sẻ với bạn</string>
+    <string name="friend_request_sent">Đã gửi lời mời kết bạn</string>
+    <string name="liked_post">Đã thích bài viết</string>
+    <string name="friend_request_declined">Đã từ chối lời mời</string>
+    <string name="accept">Chấp nhận</string>
+    <string name="decline">Từ chối</string>
+    <string name="what_are_you_thinking">Bạn đang nghĩ gì thế?</string>
+    <string name="login">Đăng nhập</string>
+    <string name="logout">Đăng xuất</string>
+    <string name="register">Đăng kí</string>
+    <string name="create_account">Tạo tài khoản mới</string>
+    <string name="other">Khác</string>
+    <string name="choose_image">Chọn ảnh</string>
+    <string name="invite">Mời</string>
+    <string name="status">Trạng thái</string>
+    <string name="group_name">Tên nhóm</string>
+    <string name="group_description">Mô tả nhóm</string>
+    <string name="everyone">Mọi người</string>
+    <string name="friends_only">Chỉ bạn bè</string>
+    <string name="feeling">Cảm xúc</string>
 </resources>

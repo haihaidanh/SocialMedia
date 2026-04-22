@@ -27,7 +27,6 @@ class MyFirebaseService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        // gửi token lên backend
     }
 
     private fun createNotificationChannel() {

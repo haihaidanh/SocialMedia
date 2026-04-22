@@ -3,7 +3,7 @@ package com.example.socialmedia1903.presentation.screen.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.socialmedia1903.data.model.ErrLogIn
-import com.example.socialmedia1903.data.local.MyPreference
+import com.example.socialmedia1903.data.local.preference.MyPreference
 import com.example.socialmedia1903.domain.usecase.GoogleSignInUseCase
 import com.example.socialmedia1903.domain.usecase.LogInUseCase
 import com.example.socialmedia1903.presentation.screen.splash.AuthState

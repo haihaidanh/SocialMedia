@@ -4,15 +4,14 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.socialmedia1903.data.dto.response.FriendshipResponse
-import com.example.socialmedia1903.data.dto.response.GroupInfoResponse
-import com.example.socialmedia1903.data.source.RemoteDataSource
+import com.example.socialmedia1903.domain.model.Friendship
 import com.example.socialmedia1903.domain.model.GroupInfo
 import com.example.socialmedia1903.domain.model.Post
 import com.example.socialmedia1903.domain.usecase.AllGroupUseCase
 import com.example.socialmedia1903.domain.usecase.CreateGroupUseCase
 import com.example.socialmedia1903.domain.usecase.GetFriendsUseCase
 import com.example.socialmedia1903.domain.usecase.GetGroupDetailUseCase
+import com.example.socialmedia1903.domain.usecase.LeaveGroupUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,7 +24,7 @@ class GroupViewModel @Inject constructor(
     private val allGroupUseCase: AllGroupUseCase,
     private val getGroupDetailUseCase: GetGroupDetailUseCase,
     private val getFriendsUseCase: GetFriendsUseCase,
-    private val remoteDataSource: RemoteDataSource
+    private val leaveGroupUseCase: LeaveGroupUseCase
 ) : ViewModel() {
 
     private val _isDone = MutableStateFlow(false)
@@ -40,8 +39,8 @@ class GroupViewModel @Inject constructor(
     private val _posts = MutableStateFlow<List<Post>>(emptyList())
     val posts: StateFlow<List<Post>> = _posts
 
-    private val _friends = MutableStateFlow<List<FriendshipResponse>>(emptyList())
-    val friends: StateFlow<List<FriendshipResponse>> = _friends
+    private val _friends = MutableStateFlow<List<Friendship>>(emptyList())
+    val friends: StateFlow<List<Friendship>> = _friends
 
     fun createGroup(
         name: String,
@@ -81,7 +80,7 @@ class GroupViewModel @Inject constructor(
         groupId: String?
     ){
         viewModelScope.launch {
-            remoteDataSource.leaveGroup(groupId)
+            leaveGroupUseCase(groupId)
         }
     }
 

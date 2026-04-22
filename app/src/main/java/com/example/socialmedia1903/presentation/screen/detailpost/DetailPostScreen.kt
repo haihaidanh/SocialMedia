@@ -51,6 +51,7 @@ import com.example.socialmedia1903.R
 import com.example.socialmedia1903.data.dto.response.PostResponse
 import com.example.socialmedia1903.domain.enums.PostType
 import com.example.socialmedia1903.domain.enums.ReactionType
+import com.example.socialmedia1903.domain.model.Post
 
 
 @Composable
@@ -73,10 +74,10 @@ fun DetailPostScreen(
 
     val post by postViewModel.post.collectAsState()
 
-    val icon = if (post.Likes.isEmpty()) {
+    val icon = if (post.likes.isEmpty()) {
         R.drawable.like
     } else {
-        ReactionType.entries.find { it.title == post.Likes[0].type }?.icon ?: R.drawable.like
+        ReactionType.entries.find { it.title == post.likes[0].type }?.icon ?: R.drawable.like
     }
 
     val likeIcon by remember { mutableStateOf(icon) }
@@ -169,8 +170,8 @@ fun DetailPostScreen(
 
                     comments.forEach { comment ->
                         CommentItem(
-                            comment.User.avatarUrl,
-                            comment.User.name,
+                            comment.user.avatarUrl,
+                            comment.user.name,
                             comment.content,
                             comment.createdAt.toString(),
                             modifier = Modifier.padding(12.dp)
@@ -246,7 +247,7 @@ fun TypeComment(
 
 @Composable
 fun Header(
-    post: PostResponse,
+    post: Post,
     onBack: () -> Unit
 ) {
     Row(
@@ -270,7 +271,7 @@ fun Header(
         Spacer(modifier = Modifier.width(8.dp))
 
         AsyncImage(
-            model = post.User.avatarUrl,
+            model = post.user.avatarUrl,
             contentDescription = null,
             modifier = Modifier
                 .size(40.dp)
@@ -281,7 +282,7 @@ fun Header(
 
         Column {
             Text(
-                text = if (post.anonymous) "Ẩn danh" else post.User.name,
+                text = if (post.anonymous) "Ẩn danh" else post.user.name,
                 fontWeight = FontWeight.Bold
             )
             Text(

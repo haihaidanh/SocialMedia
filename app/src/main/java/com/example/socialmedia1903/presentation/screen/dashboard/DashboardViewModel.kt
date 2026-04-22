@@ -6,12 +6,10 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.example.socialmedia1903.data.dto.response.PostResponse
 import com.example.socialmedia1903.data.remote.AppService
-import com.example.socialmedia1903.data.local.MyPreference
 import com.example.socialmedia1903.data.source.PostPagingSource
-import com.example.socialmedia1903.data.source.RemoteDataSource
 import com.example.socialmedia1903.domain.model.Post
+import com.example.socialmedia1903.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,9 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
+    private val userRepository: UserRepository,
     private val apiService: AppService,
-    private val myPreference: MyPreference,
-    private val remoteDataSource: RemoteDataSource
 ) : ViewModel() {
 
     private val _userId = MutableStateFlow<String?>(null)
@@ -53,34 +50,27 @@ class DashboardViewModel @Inject constructor(
 
     fun logOut() {
         viewModelScope.launch {
-            myPreference.clear()
-            remoteDataSource.logOut()
+            userRepository.logout()
             _checkLogIn.value = true
         }
     }
 
 
-    fun getName() {
-        viewModelScope.launch {
-            _name.value = myPreference.getName()
-        }
-    }
-
     fun getUserName() {
         viewModelScope.launch {
-            _username.value = myPreference.getUsername()
+            _username.value = userRepository.getUsername()
         }
     }
 
     fun getAvatar() {
         viewModelScope.launch {
-            _avatar.value = myPreference.getAvatarUrl()
+            _avatar.value = userRepository.getAvatarUrl()
         }
     }
 
     fun getUserId() {
         viewModelScope.launch {
-            _userId.value = myPreference.getUserId()
+            _userId.value = userRepository.getUserId()
         }
     }
 

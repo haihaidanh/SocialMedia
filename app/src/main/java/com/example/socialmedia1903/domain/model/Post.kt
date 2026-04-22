@@ -1,6 +1,7 @@
 package com.example.socialmedia1903.domain.model
 
 import com.example.socialmedia1903.domain.enums.PostType
+import com.example.socialmedia1903.domain.enums.PostVisibility
 import java.util.Date
 
 data class Post(
@@ -11,7 +12,7 @@ data class Post(
     val type: PostType = PostType.TEXT,
     val contentType: String = "",
     val anonymous: Boolean = false,
-    val visibility: String = "",
+    var visibility: PostVisibility = PostVisibility.PUBLIC,
     val likeCount: Int = 0,
     val commentCount: Int = 0,
     val sharedCount: Int = 0,

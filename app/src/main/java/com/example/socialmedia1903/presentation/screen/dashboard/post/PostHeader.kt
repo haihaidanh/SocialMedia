@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.socialmedia1903.R
 import com.example.socialmedia1903.data.dto.response.PostResponse
+import com.example.socialmedia1903.data.utils.AppUtils.formatDate
 import com.example.socialmedia1903.domain.model.Post
 
 @Composable
@@ -71,8 +72,9 @@ fun PostHeader(
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp
                     )
+
                     Text(
-                        text = post.createdAt.toString(),
+                        text = formatDate(post.createdAt),
                         fontSize = 12.sp,
                         color = Color.Gray
                     )
@@ -108,11 +110,13 @@ fun PostHeader(
                 Spacer(modifier = Modifier.width(8.dp))
 
                 Column {
-                    Text(
-                        text = post.group?.name!!,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
+                    post.group?.name?.let {
+                        Text(
+                            text = it,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                    }
                     Text(
                         text = post.user.username,
                         fontSize = 12.sp,

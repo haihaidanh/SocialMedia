@@ -2,23 +2,25 @@ package com.example.socialmedia1903.presentation.screen.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.socialmedia1903.data.source.RemoteDataSource
 import com.example.socialmedia1903.domain.enums.InvitationType
-import com.example.socialmedia1903.domain.usecase.InvitationUseCase
+import com.example.socialmedia1903.domain.usecase.AcceptInvitationUseCase
+import com.example.socialmedia1903.domain.usecase.RejectInvitationUseCase
+import com.example.socialmedia1903.domain.usecase.SendInvitationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class InvitationViewModel @Inject constructor(
-    private val invitationUseCase: InvitationUseCase,
-    private val remoteDataSource: RemoteDataSource
+    private val sendInvitationUseCase: SendInvitationUseCase,
+    private val acceptInvitationUseCase: AcceptInvitationUseCase,
+    private val rejectInvitationUseCase: RejectInvitationUseCase,
 ): ViewModel(){
     fun addFriend(
         friendId: String?,
     ){
         viewModelScope.launch {
-            invitationUseCase("add_friend", friendId, null)
+            sendInvitationUseCase("add_friend", friendId, null)
         }
     }
 
@@ -27,7 +29,7 @@ class InvitationViewModel @Inject constructor(
         friendId: String?
     ){
         viewModelScope.launch {
-            invitationUseCase("invite_group", friendId, groupId)
+            sendInvitationUseCase("invite_group", friendId, groupId)
         }
     }
 
@@ -37,7 +39,7 @@ class InvitationViewModel @Inject constructor(
         userId: String
     ){
         viewModelScope.launch {
-            remoteDataSource.acceptInvitation(type, groupId, userId)
+            acceptInvitationUseCase(type, groupId, userId)
         }
     }
 
@@ -47,7 +49,7 @@ class InvitationViewModel @Inject constructor(
         userId: String
     ){
         viewModelScope.launch {
-            remoteDataSource.rejectInvitation(type, groupId, userId)
+            rejectInvitationUseCase(type, groupId, userId)
         }
     }
 }

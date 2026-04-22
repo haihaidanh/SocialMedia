@@ -1,4 +1,4 @@
-package com.example.socialmedia1903.data.local
+package com.example.socialmedia1903.data.local.preference
 
 import android.content.Context
 import com.example.socialmedia1903.data.dto.response.LogInResponse

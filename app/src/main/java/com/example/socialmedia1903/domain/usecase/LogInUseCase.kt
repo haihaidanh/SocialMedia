@@ -1,6 +1,6 @@
 package com.example.socialmedia1903.domain.usecase
 
-import com.example.socialmedia1903.data.local.MyPreference
+import com.example.socialmedia1903.data.local.preference.MyPreference
 import com.example.socialmedia1903.data.source.RemoteDataSource
 import javax.inject.Inject
 

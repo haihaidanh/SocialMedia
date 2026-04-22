@@ -1,4 +1,4 @@
-package com.example.socialmedia1903.data.local
+package com.example.socialmedia1903.data.local.room
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

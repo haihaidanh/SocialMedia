@@ -1,5 +1,6 @@
 package com.example.socialmedia1903.presentation.screen.profile
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.socialmedia1903.data.dto.response.ProfileInfoResponse
@@ -9,7 +10,10 @@ import com.example.socialmedia1903.domain.enums.InvitationStatus
 import com.example.socialmedia1903.domain.model.Post
 import com.example.socialmedia1903.domain.model.ProfileInfo
 import com.example.socialmedia1903.domain.model.User
+import com.example.socialmedia1903.domain.usecase.EditBackgroundUseCase
+import com.example.socialmedia1903.domain.usecase.GetFriendsUseCase
 import com.example.socialmedia1903.domain.usecase.GetProfileUseCase
+import com.example.socialmedia1903.domain.usecase.UnFriendUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val profileUseCase: GetProfileUseCase,
-    private val remoteDataSource: RemoteDataSource
+    private val unFriendUseCase: UnFriendUseCase,
+    private val editBackgroundUseCase: EditBackgroundUseCase
 ): ViewModel() {
     private val _profile = MutableStateFlow(ProfileInfo())
     val profile: StateFlow<ProfileInfo> = _profile
@@ -60,7 +65,13 @@ class ProfileViewModel @Inject constructor(
 
     fun unFriend(friendId: String){
         viewModelScope.launch {
-            remoteDataSource.unFriend(friendId)
+            unFriendUseCase(friendId)
+        }
+    }
+
+    fun editBackground(uri: Uri){
+        viewModelScope.launch {
+            editBackgroundUseCase(uri)
         }
     }
 }

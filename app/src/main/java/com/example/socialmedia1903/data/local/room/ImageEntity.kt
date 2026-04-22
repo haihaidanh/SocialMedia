@@ -1,8 +1,7 @@
-package com.example.socialmedia1903.data.local
+package com.example.socialmedia1903.data.local.room
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.Date
 
 @Entity(tableName = "images")
 data class ImageEntity(

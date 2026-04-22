@@ -35,11 +35,12 @@ import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import com.example.socialmedia1903.data.dto.response.FriendshipResponse
 import com.example.socialmedia1903.data.dto.response.UserResponse
+import com.example.socialmedia1903.domain.model.Friendship
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FriendListBottomSheet(
-    friends: List<FriendshipResponse>,
+    friends: List<Friendship>,
     onDismiss: () -> Unit,
     onInvite: (String) -> Unit
 ) {
@@ -106,7 +107,7 @@ fun FriendListBottomSheet(
 
 @Composable
 fun FriendInviteItem(
-    friend: FriendshipResponse,
+    friend: Friendship,
     onInvite: (String) -> Unit
 ) {
     Row(

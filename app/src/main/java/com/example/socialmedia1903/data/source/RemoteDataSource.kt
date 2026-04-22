@@ -31,9 +31,18 @@ import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import com.example.socialmedia1903.data.mapper.HaiMapper.ToProfile
+import com.example.socialmedia1903.data.mapper.HaiMapper.toComment
+import com.example.socialmedia1903.data.mapper.HaiMapper.toFriendshipList
+import com.example.socialmedia1903.data.mapper.HaiMapper.toLike
+import com.example.socialmedia1903.data.mapper.HaiMapper.toNotification
 import com.example.socialmedia1903.data.mapper.HaiMapper.toNotificationList
+import com.example.socialmedia1903.data.mapper.HaiMapper.toPost
 import com.example.socialmedia1903.data.mapper.HaiMapper.toSearchResult
+import com.example.socialmedia1903.domain.model.Comment
+import com.example.socialmedia1903.domain.model.Friendship
+import com.example.socialmedia1903.domain.model.Like
 import com.example.socialmedia1903.domain.model.Notification
+import com.example.socialmedia1903.domain.model.Post
 import com.example.socialmedia1903.domain.model.ProfileInfo
 import com.example.socialmedia1903.domain.model.SearchResult
 
@@ -74,16 +83,21 @@ class RemoteDataSource @Inject constructor(
         return appService.search(text).toSearchResult()
     }
 
-    suspend fun likePost(postId: String, type: String): LikeResponse{
-        return appService.likePost(LikeRequest(postId, type))
+    suspend fun likePost(postId: String, type: String): Like {
+        return appService.likePost(LikeRequest(postId, type)).toLike()
     }
 
-    suspend fun getDetailPost(postId: String): PostResponse{
-        return appService.getDetailPost(postId).post
+    suspend fun getDetailPost(postId: String): Post {
+        val response =  appService.getDetailPost(postId)
+        if (!response.isSuccessful){
+            throw Exception("Failed to get detail post")
+        }
+        return response.body()?.post?.toPost() ?: Post()
+
     }
 
-    suspend fun getAllComments(postId: String): List<CommentResponse>{
-        return appService.getAllComment(postId, "all").comments
+    suspend fun getAllComments(postId: String): List<Comment>{
+        return appService.getAllComment(postId, "all").comments.map { it.toComment() }
     }
 
     suspend fun logOut(){
@@ -94,40 +108,6 @@ class RemoteDataSource @Inject constructor(
         appService.commentPost(CommentRequest(postId, parentId, content))
     }
 
-    suspend fun createPost(
-        postId: String,
-        content: String,
-        type: PostType,
-        groupId: String?,
-        contentType: String,
-        anonymous: Boolean,
-        visibility: String
-    ): Boolean{
-        val response = appService.createPost(
-            PostRequest(
-                id = postId,
-                content = content,
-                groupId = groupId,
-                type = type,
-                contentType = contentType,
-                anonymous = anonymous,
-                visibility = visibility
-            )
-        )
-        if (!response.isSuccessful){
-            throw Exception("Failed to create post")
-        }
-        return true
-    }
-
-    suspend fun uploadImage(images: List<Uri>, context: Context, postId: String): Boolean{
-        val multipart =  images.map { AppUtils.uriToMultipart(context, it) }
-        val response = appService.uploadImage(multipart, postId)
-        if (!response.isSuccessful){
-            throw Exception("Failed to upload image")
-        }
-        return true
-    }
 
     suspend fun createGroup(
         name: String,
@@ -175,12 +155,12 @@ class RemoteDataSource @Inject constructor(
         return response.body()?.ToProfile() ?: Profile(ProfileInfo(), InvitationStatus.NONE,emptyList())
     }
 
-    suspend fun getFriends(): List<FriendshipResponse>{
+    suspend fun getFriends(): List<Friendship>{
         val response = appService.getFriends()
         if (!response.isSuccessful) {
             throw Exception("Failed to get friends")
         }
-        return response.body()?.friends ?: emptyList()
+        return response.body()?.friends?.toFriendshipList() ?: emptyList()
     }
 
     suspend fun invitation(type: String, friendId: String?, groupId: String?){
@@ -251,5 +231,32 @@ class RemoteDataSource @Inject constructor(
             throw Exception("Failed to get stories")
         }
         return response.body()?.stories ?: emptyList()
+    }
+
+    suspend fun deletePost(postId: String){
+        Log.d("hai", "delete post: $postId")
+        val response = appService.deletePost(postId)
+        if (!response.isSuccessful){
+            throw Exception("Failed to delete post")
+        }
+        return response.body() ?: Unit
+    }
+
+    suspend fun undoDeletePost(postId: String){
+        Log.d("hai", "undo delete post: $postId")
+        val response = appService.undoDeletePost(postId)
+        if (!response.isSuccessful){
+            throw Exception("Failed to undo delete post")
+        }
+        return response.body() ?: Unit
+    }
+
+    suspend fun editBackground(uri: Uri, context: Context){
+        val multipart = AppUtils.uriToMultipart(context, uri)
+        val response = appService.editBackground(multipart)
+        if (!response.isSuccessful){
+            throw Exception("Failed to edit background")
+        }
+        return response.body() ?: Unit
     }
 }

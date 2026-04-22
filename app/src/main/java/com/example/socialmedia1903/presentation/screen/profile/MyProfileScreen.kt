@@ -1,6 +1,9 @@
 package com.example.socialmedia1903.presentation.screen.profile
 
+import android.net.Uri
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,6 +33,8 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -44,10 +49,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -57,6 +65,7 @@ import com.example.socialmedia1903.domain.model.User
 import com.example.socialmedia1903.presentation.screen.dashboard.CustomBottomBarWithFab
 import com.example.socialmedia1903.presentation.screen.dashboard.DashboardViewModel
 import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItem
+import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItemView
 
 
 @Composable
@@ -82,6 +91,23 @@ fun MyProfileScreen(
     val friends by profileViewModel.friends.collectAsState()
     var selectedIndex by remember { mutableStateOf(0) }
     var isEditInfo by remember { mutableStateOf(false) }
+    var image by remember { mutableStateOf<String?>(null) }
+    var description by remember { mutableStateOf("") }
+    var isEditDescription by remember { mutableStateOf(false) }
+
+    profile.background?.let {
+        image = it
+    }
+
+    profile.description?.let {
+        description = it
+    }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        image = uri.toString()
+    }
 
     Box(
         modifier = Modifier
@@ -101,8 +127,9 @@ fun MyProfileScreen(
                     .fillMaxWidth()
                     .height(200.dp)
             ) {
+
                 AsyncImage(
-                    model = profile.background ?: R.drawable.background,
+                    model = image ?: R.drawable.background,
                     contentDescription = "Cover",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -132,6 +159,52 @@ fun MyProfileScreen(
                         .border(3.dp, Color.White, CircleShape)
                         .align(Alignment.BottomStart)
                 )
+
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_arrow_back_ios_new_24),
+                    contentDescription = null,
+                    tint = colorResource(R.color.base),
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .size(24.dp)
+                        .clickable { navController.popBackStack() }
+                        .align(Alignment.TopStart)
+                        .zIndex(10f)
+                )
+
+                if (!image.isNullOrEmpty()) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.agree),
+                        contentDescription = null,
+                        tint = colorResource(R.color.base),
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .size(24.dp)
+                            .clickable {
+                                profileViewModel.editBackground(Uri.parse(image))
+                                image = null
+                            }
+                            .align(Alignment.TopEnd)
+                            .zIndex(10f)
+                    )
+                } else {
+
+                    Icon(
+                        painter = painterResource(id = R.drawable.edit),
+                        contentDescription = null,
+                        tint = colorResource(R.color.base),
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .size(20.dp)
+                            .clickable {
+                                launcher.launch("image/*")
+                            }
+                            .align(Alignment.TopEnd)
+                            .zIndex(10f)
+                    )
+
+                }
+
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -154,18 +227,47 @@ fun MyProfileScreen(
                 text = "Mô tả",
                 icon = R.drawable.edit,
                 onIconClick = {
-
+                    isEditDescription = !isEditDescription
                 },
                 modifier = Modifier.padding(top = 10.dp)
             )
 
-            Text(
-                text = "",
-                fontSize = 14.sp,
-                color = Color.Black,
-                modifier = Modifier.padding(10.dp)
-            )
-
+            if (isEditDescription) {
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+                        disabledBorderColor = Color.Transparent
+                    ),
+                    textStyle = TextStyle(
+                        fontSize = 14.sp,
+                        color = Color.Black,
+                    ),
+                    trailingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.agree),
+                            contentDescription = null,
+                            tint = colorResource(R.color.base),
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clickable {
+                                    isEditDescription = false
+                                }
+                        )
+                    }
+                )
+            } else {
+                Text(
+                    text = description,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
 
             val tabs = listOf("Tất cả", "Thông tin", "Ảnh")
 
@@ -212,14 +314,14 @@ fun MyProfileScreen(
                         modifier = Modifier
                             .padding(10.dp)
                     )
-                    //Log.d("hai", "posts: ${posts.size}")
                     posts.forEach { post ->
                         userId?.let {
-                        PostItem(
-                            post = post,
-                            navController = navController,
-                            userId = it
-                        )}
+                            PostItemView(
+                                post = post,
+                                navController = navController,
+                                userId = it
+                            )
+                        }
 
                     }
                 }
@@ -311,16 +413,6 @@ fun MyProfileScreen(
 
 
         }
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
-        ) {
-            CustomBottomBarWithFab(navController) {
-
-            }
-        }
     }
 }
 
@@ -394,10 +486,19 @@ fun EditableTextComponent(
 
 
         if (edit) {
-            TextField(
+            OutlinedTextField(
                 value = ct,
                 onValueChange = { ct = it },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
+                    disabledBorderColor = Color.Transparent
+                ),
+                textStyle = TextStyle(
+                    fontSize = 18.sp,
+                    color = Color.Black,
+                )
             )
         } else {
             Text(

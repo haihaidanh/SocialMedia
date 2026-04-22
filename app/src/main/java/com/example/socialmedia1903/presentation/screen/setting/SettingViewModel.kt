@@ -5,9 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
-import com.example.socialmedia1903.data.local.SettingLanguageRepository
-import com.example.socialmedia1903.data.local.SettingThemeRepository
+import com.example.socialmedia1903.data.repository.SettingLanguageRepositoryImpl
+import com.example.socialmedia1903.data.repository.SettingThemeRepositoryImpl
 import com.example.socialmedia1903.domain.enums.ThemeMode
+import com.example.socialmedia1903.domain.repository.SettingLanguageRepository
+import com.example.socialmedia1903.domain.repository.SettingThemeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

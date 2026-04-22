@@ -52,6 +52,7 @@ import com.example.socialmedia1903.R
 import com.example.socialmedia1903.data.dto.response.PostResponse
 import com.example.socialmedia1903.domain.model.Post
 import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItem
+import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItemView
 import com.example.socialmedia1903.presentation.screen.story.AddStoryItem
 import com.example.socialmedia1903.presentation.screen.story.StoryItem
 import com.example.socialmedia1903.presentation.screen.story.StoryViewModel
@@ -173,7 +174,7 @@ fun DashboardScreen(
                         val post = posts[index]
                         post?.let {
                             userId?.let { userId ->
-                                PostItem(
+                                PostItemView(
                                     it,
                                     navController = navController,
                                     userId = userId
@@ -226,7 +227,7 @@ fun createPostScreen(
                 .clip(CircleShape),
             contentScale = ContentScale.Crop
         )
-        Text(text = "What are you thinking?..")
+        Text(text = stringResource(R.string.what_are_you_thinking), modifier = Modifier.padding(horizontal = 10.dp))
     }
 }
 

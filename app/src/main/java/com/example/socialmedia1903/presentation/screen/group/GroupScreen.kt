@@ -53,6 +53,7 @@ import com.example.socialmedia1903.domain.model.GroupInfo
 import com.example.socialmedia1903.presentation.screen.dashboard.DashboardViewModel
 import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItem
 import com.example.socialmedia1903.presentation.screen.dashboard.createPostScreen
+import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItemView
 import com.example.socialmedia1903.presentation.screen.profile.InvitationViewModel
 import com.example.socialmedia1903.presentation.screen.profile.BottomSheet
 import com.example.socialmedia1903.presentation.screen.profile.BottomSheetItem
@@ -270,7 +271,7 @@ fun GroupScreen(
                 // Danh sách bài viết (Dùng items thay vì forEach để tối ưu hiệu năng)
                 items(posts) { post ->
                     userId?.let { userId ->
-                        PostItem(
+                        PostItemView(
                             post,
                             navController = navController,
                             userId = userId

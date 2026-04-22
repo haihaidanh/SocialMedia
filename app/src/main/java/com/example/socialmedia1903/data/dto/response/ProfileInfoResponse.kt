@@ -7,6 +7,7 @@ data class ProfileInfoResponse(
     val avatarUrl: String="",
     val background: String?=null,
     val gender: Int = 0,
+    val description: String?=null,
     val birthday: String?=null,
     val username: String="",
     val phoneNumber: String?=null,

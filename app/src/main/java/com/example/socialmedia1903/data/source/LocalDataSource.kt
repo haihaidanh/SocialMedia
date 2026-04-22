@@ -1,7 +1,7 @@
 package com.example.socialmedia1903.data.source
 
-import com.example.socialmedia1903.data.local.ImageDao
-import com.example.socialmedia1903.data.local.ImageEntity
+import com.example.socialmedia1903.data.local.room.ImageDao
+import com.example.socialmedia1903.data.local.room.ImageEntity
 import javax.inject.Inject
 
 class LocalDataSource @Inject constructor(

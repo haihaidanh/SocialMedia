@@ -32,6 +32,7 @@ import androidx.navigation.NavController
 import com.example.socialmedia1903.R
 import com.example.socialmedia1903.presentation.screen.dashboard.DashboardViewModel
 import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItem
+import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItemView
 
 @Composable
 fun ResultSearchScreen(
@@ -125,7 +126,7 @@ fun ResultSearchScreen(
 
                 posts.forEach { post ->
                     userId?.let {
-                        PostItem(
+                        PostItemView(
                             post,
                             navController = navController,
                             userId = it

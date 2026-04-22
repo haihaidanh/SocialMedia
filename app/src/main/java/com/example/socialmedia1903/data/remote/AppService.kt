@@ -2,6 +2,7 @@ package com.example.socialmedia1903.data.remote
 
 import com.example.socialmedia1903.data.dto.request.AddFriendRequest
 import com.example.socialmedia1903.data.dto.request.CommentRequest
+import com.example.socialmedia1903.data.dto.request.EditProfileRequest
 import com.example.socialmedia1903.data.dto.request.PostRequest
 import com.example.socialmedia1903.data.dto.request.LikeRequest
 import com.example.socialmedia1903.data.dto.request.LogInRequest
@@ -28,6 +29,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -71,7 +73,7 @@ interface AppService {
     @GET("/post/{postId}")
     suspend fun getDetailPost(
         @Path("postId") postId: String
-    ): DetailPostResponse
+    ): Response<DetailPostResponse>
 
     @GET("/get-all-comment/{postId}")
     suspend fun getAllComment(
@@ -172,4 +174,30 @@ interface AppService {
 
     @GET("/get-stories")
     suspend fun getStories(): Response<StoryListResponse>
+
+    @PUT("/edit-profile")
+    suspend fun editProfile(
+        @Body editProfileRequest: EditProfileRequest
+    ): Response<Unit>
+
+    @PUT("/edit-background")
+    suspend fun editBackground(
+        @Part file: MultipartBody.Part
+    ): Response<Unit>
+
+    @PUT("/edit-post/{postId}")
+    suspend fun editPost(
+        @Path("postId") postId: String,
+        @Body postRequest: PostRequest
+    ): Response<Unit>
+
+    @PUT("/delete-post/{postId}")
+    suspend fun deletePost(
+        @Path("postId") postId: String
+    ): Response<Unit>
+
+    @PUT("/undo-delete-post/{postId}")
+    suspend fun undoDeletePost(
+        @Path("postId") postId: String
+    ): Response<Unit>
 }

@@ -2,10 +2,12 @@ package com.example.socialmedia1903.data.mapper
 
 import com.example.socialmedia1903.data.dto.request.PostRequest
 import com.example.socialmedia1903.data.dto.response.CommentResponse
+import com.example.socialmedia1903.data.dto.response.DetailPostResponse
 import com.example.socialmedia1903.data.dto.response.FriendshipResponse
 import com.example.socialmedia1903.data.dto.response.GroupInfoResponse
 import com.example.socialmedia1903.data.dto.response.GroupResponse
 import com.example.socialmedia1903.data.dto.response.LikeResponse
+import com.example.socialmedia1903.data.dto.response.LogInResponse
 import com.example.socialmedia1903.data.dto.response.MediaResponse
 import com.example.socialmedia1903.data.dto.response.MemberResponse
 import com.example.socialmedia1903.data.dto.response.NotificationResponse
@@ -14,6 +16,7 @@ import com.example.socialmedia1903.data.dto.response.ProfileInfoResponse
 import com.example.socialmedia1903.data.dto.response.ProfileResponse
 import com.example.socialmedia1903.data.dto.response.SearchItemResponse
 import com.example.socialmedia1903.data.dto.response.SearchResultResponse
+import com.example.socialmedia1903.data.dto.response.SignUpResponse
 import com.example.socialmedia1903.data.dto.response.UserResponse
 import com.example.socialmedia1903.data.mapper.HaiMapper.toGroupInfo
 import com.example.socialmedia1903.domain.model.Comment
@@ -21,6 +24,7 @@ import com.example.socialmedia1903.domain.model.Friendship
 import com.example.socialmedia1903.domain.model.Group
 import com.example.socialmedia1903.domain.model.GroupInfo
 import com.example.socialmedia1903.domain.model.Like
+import com.example.socialmedia1903.domain.model.LogIn
 import com.example.socialmedia1903.domain.model.Media
 import com.example.socialmedia1903.domain.model.Member
 import com.example.socialmedia1903.domain.model.Notification
@@ -28,9 +32,29 @@ import com.example.socialmedia1903.domain.model.Post
 import com.example.socialmedia1903.domain.model.Profile
 import com.example.socialmedia1903.domain.model.ProfileInfo
 import com.example.socialmedia1903.domain.model.SearchItem
+import com.example.socialmedia1903.domain.model.SignUp
 import com.example.socialmedia1903.domain.model.User
 
 object HaiMapper {
+
+    fun LogInResponse.toLogIn(): LogIn {
+        return LogIn(
+            accessToken = this.accessToken ?: "",
+            refreshToken = this.refreshToken ?: "",
+            name = this.name ?: "",
+            avatarUrl = this.avatarUrl ?: "",
+            username = this.username ?: "",
+            id = this.id ?: ""
+        )
+    }
+
+    fun SignUpResponse.toSignUp(): SignUp {
+        return SignUp(
+            success = errCode == 0,
+            message = message
+        )
+    }
+
     fun Post.toPostRequest(): PostRequest {
         return PostRequest(
             id = this.id,
@@ -105,6 +129,10 @@ object HaiMapper {
             username = this.username,
             name = this.name,
             avatarUrl = this.avatarUrl,
+            background = this.background,
+            gender = this.gender,
+            description = this.description,
+            birthday = this.birthday,
             createdAt = this.createdAt,
             updatedAt = this.updatedAt
         )
@@ -173,7 +201,7 @@ object HaiMapper {
         return this.map { it.toLike() }
     }
 
-    private fun LikeResponse.toLike(): Like {
+    fun LikeResponse.toLike(): Like {
         return Like(
             message = this.message,
             type = this.type
@@ -184,7 +212,7 @@ object HaiMapper {
         return this.map { it.toComment() }
     }
 
-    private fun CommentResponse.toComment(): Comment {
+    fun CommentResponse.toComment(): Comment {
         return Comment(
             id = this.id,
             userId = this.userId,
@@ -196,6 +224,7 @@ object HaiMapper {
             user = this.User.toUser()
         )
     }
+
 
     private fun MediaResponse.toMedia(): Media {
         return Media(
@@ -222,7 +251,7 @@ object HaiMapper {
         )
     }
 
-    private fun List<FriendshipResponse>.toFriendshipList(): List<Friendship> {
+    fun List<FriendshipResponse>.toFriendshipList(): List<Friendship> {
         return this.map { it.toFriendship() }
     }
 

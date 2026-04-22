@@ -45,6 +45,7 @@ import com.example.socialmedia1903.domain.enums.InvitationStatus
 import com.example.socialmedia1903.domain.enums.InvitationType
 import com.example.socialmedia1903.presentation.screen.dashboard.DashboardViewModel
 import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItem
+import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItemView
 
 
 @Composable
@@ -281,7 +282,7 @@ fun ProfileScreen(
             Log.d("hai", "posts: ${posts.size}")
             posts.forEach { post ->
                 userId?.let { userId ->
-                    PostItem(
+                    PostItemView(
                         post = post,
                         navController = navController,
                         userId = userId

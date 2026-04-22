@@ -47,6 +47,7 @@ import androidx.navigation.NavController
 import com.example.socialmedia1903.R
 import com.example.socialmedia1903.data.dto.response.PostResponse
 import com.example.socialmedia1903.domain.enums.PostType
+import com.example.socialmedia1903.domain.enums.PostVisibility
 import com.example.socialmedia1903.domain.enums.ReactionType
 import com.example.socialmedia1903.domain.model.Post
 import com.example.socialmedia1903.presentation.screen.detailpost.PostViewModel
@@ -56,11 +57,59 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
+fun PostItemView(
+    post: Post,
+    navController: NavController,
+    postViewModel: PostViewModel = hiltViewModel(),
+    userId: String
+) {
+
+    var visibility by remember { mutableStateOf(post.visibility) }
+
+    when (visibility) {
+        PostVisibility.PUBLIC -> {
+            PostItem(post = post,
+                navController = navController,
+                userId = userId,
+                postViewModel = postViewModel,
+                deleteClick = {
+                visibility = PostVisibility.DELETED
+            })
+        }
+
+        PostVisibility.FRIENDS -> {
+            PostItem(post = post,
+                navController = navController,
+                postViewModel = postViewModel,
+                userId = userId,
+                deleteClick = {
+                visibility = PostVisibility.DELETED
+            })
+        }
+
+        PostVisibility.PRIVATE -> {
+
+        }
+
+        PostVisibility.DELETED -> {
+            UndoItem(
+                text = "Đã xóa thành công",
+                onUndoClick = {
+                    postViewModel.undoDeletePost(post.id)
+                    visibility = PostVisibility.PUBLIC
+                }
+            )
+        }
+    }
+}
+
+@Composable
 fun PostItem(
     post: Post,
-    postViewModel: PostViewModel = hiltViewModel(),
+    postViewModel: PostViewModel,
     navController: NavController,
-    userId: String
+    userId: String,
+    deleteClick: () -> Unit = {}
 ) {
 
     var likeCount by remember { mutableStateOf(post.likeCount) }
@@ -88,7 +137,7 @@ fun PostItem(
 
     val context = LocalContext.current
 
-    if(showBottomSheet){
+    if (showBottomSheet) {
         FriendListBottomSheet(
             friends = friends,
             onInvite = { friendId ->
@@ -124,7 +173,10 @@ fun PostItem(
                 modifier = Modifier,
                 userId = userId,
                 onEdit = {},
-                onDelete = {},
+                onDelete = {
+                    postViewModel.deletePost(post.id)
+                    deleteClick()
+                },
                 onSave = {}
             )
             Box(
@@ -250,7 +302,7 @@ fun PostItem(
                         .padding(4.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        if(likeIcon == R.drawable.like){
+                        if (likeIcon == R.drawable.like) {
                             Icon(
                                 painter = painterResource(R.drawable.like),
                                 contentDescription = "Like",

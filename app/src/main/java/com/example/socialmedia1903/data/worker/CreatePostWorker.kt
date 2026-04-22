@@ -1,4 +1,4 @@
-package com.example.socialmedia1903.data.utils
+package com.example.socialmedia1903.data.worker
 
 import android.content.Context
 import android.util.Log
@@ -8,10 +8,11 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.socialmedia1903.data.dto.request.PostRequest
 import com.example.socialmedia1903.data.remote.AppService
+import com.example.socialmedia1903.data.utils.AppUtils
 import com.example.socialmedia1903.domain.enums.PostType
+import com.example.socialmedia1903.domain.enums.PostVisibility
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import javax.inject.Inject
 
 @HiltWorker
 class CreatePostWorker @AssistedInject constructor(
@@ -29,9 +30,15 @@ class CreatePostWorker @AssistedInject constructor(
             val contentType = inputData.getString("contentType")
             val anonymous = inputData.getBoolean("anonymous", false)
             val visibility = inputData.getString("visibility")
+                ?.let { runCatching { PostVisibility.valueOf(it) }.getOrNull() }
             val images = inputData.getStringArray("images") ?: emptyArray()
             Log.d("hai", images.joinToString(","))
-            val multiparts = images.map { AppUtils.uriToMultipart(context = applicationContext, it.toUri()) }
+            val multiparts = images.map {
+                AppUtils.uriToMultipart(
+                    context = applicationContext,
+                    it.toUri()
+                )
+            }
 
             val response = appService.createPost(
                 PostRequest(
@@ -41,7 +48,7 @@ class CreatePostWorker @AssistedInject constructor(
                     groupId = groupId,
                     contentType = contentType ?: "",
                     anonymous = anonymous,
-                    visibility = visibility ?: ""
+                    visibility = visibility ?:  PostVisibility.PUBLIC
                 )
             )
             if(images.isNotEmpty()) {

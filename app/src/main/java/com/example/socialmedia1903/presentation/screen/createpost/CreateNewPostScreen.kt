@@ -63,6 +63,7 @@ import coil.request.videoFrameMillis
 import com.example.socialmedia1903.R
 import com.example.socialmedia1903.data.dto.response.MediaResponse
 import com.example.socialmedia1903.domain.enums.PostType
+import com.example.socialmedia1903.domain.enums.PostVisibility
 import com.example.socialmedia1903.presentation.screen.dashboard.DashboardViewModel
 import com.example.socialmedia1903.presentation.screen.dashboard.VideoPlayer
 import java.util.UUID
@@ -80,14 +81,15 @@ fun CreateNewPostScreen(
     }
 
     LaunchedEffect(Unit) {
-        dashboardViewModel.getName()
+        dashboardViewModel.getUserName()
     }
 
     val avatarUrl by dashboardViewModel.avatar.collectAsState()
-    val userName by dashboardViewModel.name.collectAsState()
+    val userName by dashboardViewModel.username.collectAsState()
 
 
     var content by remember { mutableStateOf("") }
+    var visibility by remember { mutableStateOf(PostVisibility.PUBLIC) }
     var selectedImages by remember { mutableStateOf<List<String>>(emptyList()) }
     val context = LocalContext.current
     val isSaveToRoom by createPostViewModel.isSaveToRoom.collectAsState()
@@ -142,8 +144,10 @@ fun CreateNewPostScreen(
                 model = avatarUrl,
                 contentDescription = null,
                 modifier = Modifier
+                    .padding(start = 8.dp)
                     .size(40.dp)
-                    .clip(CircleShape)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -297,7 +301,7 @@ fun CreateNewPostScreen(
                                 groupId = groupId,
                                 contentType = "plain",
                                 anonymous = false,
-                                visibility = "public",
+                                visibility = visibility,
                                 context = context
                             )
                         }

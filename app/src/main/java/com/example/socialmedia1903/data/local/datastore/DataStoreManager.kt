@@ -1,4 +1,4 @@
-package com.example.socialmedia1903.data.local
+package com.example.socialmedia1903.data.local.datastore
 
 import android.content.Context
 import androidx.datastore.preferences.core.stringPreferencesKey

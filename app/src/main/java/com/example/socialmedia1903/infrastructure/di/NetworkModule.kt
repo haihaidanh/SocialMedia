@@ -3,7 +3,7 @@ package com.example.socialmedia1903.infrastructure.di
 import com.example.socialmedia1903.data.remote.AppService
 import com.example.socialmedia1903.data.remote.AuthInterceptor
 import com.example.socialmedia1903.data.remote.RefreshTokenInterceptor
-import com.example.socialmedia1903.data.local.MyPreference
+import com.example.socialmedia1903.data.local.preference.MyPreference
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -1,7 +1,7 @@
 package com.example.socialmedia1903.data.remote
 
 import com.example.socialmedia1903.data.dto.response.LogInResponse
-import com.example.socialmedia1903.data.local.MyPreference
+import com.example.socialmedia1903.data.local.preference.MyPreference
 import okhttp3.Interceptor
 import okhttp3.Response
 

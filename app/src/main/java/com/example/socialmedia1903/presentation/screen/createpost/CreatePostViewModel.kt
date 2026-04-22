@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
 import com.example.socialmedia1903.data.source.LocalDataSource
 import com.example.socialmedia1903.domain.enums.PostType
+import com.example.socialmedia1903.domain.enums.PostVisibility
 import com.example.socialmedia1903.domain.model.Post
 import com.example.socialmedia1903.domain.usecase.CreatePostUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -48,7 +49,7 @@ class CreatePostViewModel @Inject constructor(
         groupId: String?,
         contentType: String,
         anonymous: Boolean,
-        visibility: String,
+        visibility: PostVisibility,
         context: Context
     ) {
         val post = Post(

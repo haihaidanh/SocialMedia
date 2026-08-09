@@ -1,8 +1,9 @@
+
 <resources>
     <string name="app_name">socialmedia1903</string>
     <string name="home">Home</string>
-    <string name="search">Search</string>"
-    <string name="profile">Profile</string>"
+    <string name="search">Search</string>
+    <string name="profile">Profile</string>
     <string name="create_post">Create post</string>
     <string name="group">Group</string>
     <string name="notification">Notification</string>
@@ -39,7 +40,7 @@
     <string name="decline">Decline</string>
     <string name="what_are_you_thinking">What are you thinking?</string>
     <string name="login">Login</string>
-    <string name="logout">Logout</string>
+    <string name="logout">Log out</string>
     <string name="register">Register</string>
     <string name="create_account">Create new account</string>
     <string name="other">Other</string>
@@ -51,4 +52,43 @@
     <string name="everyone">Everyone</string>
     <string name="friends_only">Friends only</string>
     <string name="feeling">Feeling</string>
+    <string name="your_group">Your groups</string>
+    <string name="error_post_toast">Invalid post</string>
+    <string name="anonymous">Anonymous</string>
+    <string name="edit_post">Edit post</string>
+    <string name="delete_post">Delete post</string>
+    <string name="store_post">Save post</string>
+    <string name="delete_successfully">Deleted successfully</string>
+    <string name="image">Image</string>
+    <string name="video">Video</string>
+    <string name="people">People</string>
+    <string name="loading_more">Loading more...</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="sign_up_navigate">Don\'t have an account? Sign up</string>
+    <string name="others">Others</string>
+    <string name="publics">Public</string>
+    <string name="privates">Private</string>
+    <string name="desc">Description</string>
+    <string name="personal_profile">Personal information</string>
+    <string name="see_all">View all</string>
+    <string name="pick_color">Pick Color</string>
+    <string name="ok">OK</string>
+    <string name="select_language">Select Language</string>
+    <string name="like_noti">"đã thích bài viết của bạn: %1$s"</string>
+    <string name="friend_request_accepted">Friend request accepted</string>
+    <string name="reject">Reject</string>
+    <string name="invite_group_noti">mời bạn tham gia vào nhóm: %1$s</string>
+    <string name="view">View</string>
+    <string name="leave">Leave</string>
+    <string name="public_group">Nhóm công khai</string>
+    <string name="private_group">Nhóm riêng tư</string>
+    <string name="member">"%1$s thành viên"</string>
+    <string name="joined">Joined</string>
+    <string name="response">Response</string>
+    <string name="join">Tham gia</string>
+    <string name="posts">Bài viết</string>
+    <string name="result_search">Kết quả tìm kiếm</string>
+    <string name="add_friend">Kết bạn</string>
+    <string name="sent">Đã gửi</string>
 </resources>

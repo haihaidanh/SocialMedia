@@ -1,5 +1,6 @@
 package com.example.socialmedia1903.presentation.screen.notification
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,12 +27,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.socialmedia1903.R
 import com.example.socialmedia1903.data.dto.response.NotificationResponse
 import com.example.socialmedia1903.domain.model.Notification
+import com.example.socialmedia1903.presentation.component.BaseButton
+import com.example.socialmedia1903.presentation.component.RoundButton
 
 @Composable
 fun AddFriendItem(
@@ -44,16 +50,18 @@ fun AddFriendItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(12.dp),
-        verticalAlignment = Alignment.Top
+            .background(
+                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(12.dp)
+            ).padding(horizontal = 10.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
 
-        // Avatar
         AsyncImage(
             model = item.user.avatarUrl,
             contentDescription = "avatar",
             modifier = Modifier
-                .size(50.dp)
+                .size(36.dp)
                 .clip(CircleShape),
             contentScale = ContentScale.Crop
         )
@@ -63,65 +71,65 @@ fun AddFriendItem(
         Column(
             modifier = Modifier.weight(1f)
         ) {
-
-            // Name + content
             Text(
                 text = item.user.name,
                 fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 modifier = Modifier
                     .clickable {
                         onItemClick()
-                    }
+                    },
+                color = MaterialTheme.colorScheme.onSurface
             )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
             when(status){
                 "none" -> {
                     Text(
-                        text = "da gui loi moi ket ban",
+                        text = stringResource(id = R.string.friend_request_sent),
                         fontSize = 14.sp,
                         color = Color.Gray
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Buttons
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Button(
+                        BaseButton(
+                            title = R.string.accept,
                             onClick = {
                                 status = "accepted"
                                 onAccept()
                             },
                             modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Text("Đồng ý")
-                        }
+                            radius = 1000,
+                            textSize = 12,
+                        )
 
-                        Button(
+                        RoundButton(
+                            title = R.string.reject,
                             onClick = {
                                 status = "rejected"
                                 onReject()
                             },
                             modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.LightGray
-                            )
-                        ) {
-                            Text("Từ chối", color = Color.Black)
-                        }
+                            radius = 1000,
+                            textSize = 12,
+                        )
                     }
                 }
                 "accepted" -> {
-                    Text(text = "da chap nhan loi moi ket ban")
+                    Text(
+                        text = stringResource(R.string.friend_request_accepted),
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
                 "rejected" -> {
-                    Text(text = "da tu choi loi moi ket ban")
+                    Text(
+                        text = stringResource(R.string.friend_request_declined),
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
             }
 

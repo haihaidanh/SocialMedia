@@ -1,7 +1,6 @@
 package com.example.socialmedia1903.presentation.screen.profile
 
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -20,10 +19,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,16 +31,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -60,12 +61,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.socialmedia1903.R
-import com.example.socialmedia1903.data.dto.response.UserResponse
+import com.example.socialmedia1903.data.utils.AppUtils.fontOpenSansBoldHelper
 import com.example.socialmedia1903.domain.model.User
-import com.example.socialmedia1903.presentation.screen.dashboard.CustomBottomBarWithFab
+import com.example.socialmedia1903.presentation.core.modifier.staticStatusBarPadding
 import com.example.socialmedia1903.presentation.screen.dashboard.DashboardViewModel
-import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItem
-import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItemView
 
 
 @Composable
@@ -73,7 +72,6 @@ fun MyProfileScreen(
     navController: NavController,
     profileViewModel: ProfileViewModel = hiltViewModel(),
     dashboardViewModel: DashboardViewModel = hiltViewModel(),
-    padding: PaddingValues
 ) {
     LaunchedEffect(Unit) {
         profileViewModel.getMyProfile()
@@ -89,7 +87,7 @@ fun MyProfileScreen(
     val profile by profileViewModel.profile.collectAsState()
     val posts by profileViewModel.posts.collectAsState()
     val friends by profileViewModel.friends.collectAsState()
-    var selectedIndex by remember { mutableStateOf(0) }
+    var selectedIndex by remember { mutableIntStateOf(R.string.all) }
     var isEditInfo by remember { mutableStateOf(false) }
     var image by remember { mutableStateOf<String?>(null) }
     var description by remember { mutableStateOf("") }
@@ -112,8 +110,10 @@ fun MyProfileScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
-            .padding(padding)
+            .staticStatusBarPadding()
+            .background(
+                color = MaterialTheme.colorScheme.surface
+            )
     ) {
 
         Column(
@@ -145,7 +145,9 @@ fun MyProfileScreen(
                         .align(Alignment.BottomCenter)
                         .offset(y = (-10).dp)
                         .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-                        .background(Color.White)
+                        .background(
+                            MaterialTheme.colorScheme.surface
+                        )
                 )
                 AsyncImage(
                     model = profile.avatarUrl,
@@ -161,75 +163,54 @@ fun MyProfileScreen(
                 )
 
                 Icon(
-                    painter = painterResource(id = R.drawable.baseline_arrow_back_ios_new_24),
+                    painter = if (!image.isNullOrEmpty())
+                        painterResource(id = R.drawable.agree)
+                    else
+                        painterResource(id = R.drawable.edit),
                     contentDescription = null,
-                    tint = colorResource(R.color.base),
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .padding(16.dp)
-                        .size(24.dp)
-                        .clickable { navController.popBackStack() }
-                        .align(Alignment.TopStart)
-                        .zIndex(10f)
-                )
-
-                if (!image.isNullOrEmpty()) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.agree),
-                        contentDescription = null,
-                        tint = colorResource(R.color.base),
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .size(24.dp)
-                            .clickable {
+                        .size(18.dp)
+                        .clickable {
+                            if (!image.isNullOrEmpty()) {
                                 profileViewModel.editBackground(Uri.parse(image))
                                 image = null
-                            }
-                            .align(Alignment.TopEnd)
-                            .zIndex(10f)
-                    )
-                } else {
-
-                    Icon(
-                        painter = painterResource(id = R.drawable.edit),
-                        contentDescription = null,
-                        tint = colorResource(R.color.base),
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .size(20.dp)
-                            .clickable {
+                            } else {
                                 launcher.launch("image/*")
                             }
-                            .align(Alignment.TopEnd)
-                            .zIndex(10f)
-                    )
 
-                }
 
+                        }
+                        .align(Alignment.TopEnd)
+                        .zIndex(10f)
+                )
             }
-
-            Spacer(modifier = Modifier.height(10.dp))
 
             Text(
                 text = profile.username,
-                fontSize = 24.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 16.dp)
+                modifier = Modifier.padding(start = 16.dp),
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Text(
                 text = "@" + profile.name,
-                fontSize = 16.sp,
+                fontSize = 12.sp,
                 color = Color.Gray,
-                modifier = Modifier.padding(start = 16.dp)
+                modifier = Modifier.padding(start = 16.dp),
+                fontWeight = FontWeight.SemiBold
             )
 
             TextAndIcon(
-                text = "Mô tả",
+                text = stringResource(R.string.desc),
                 icon = R.drawable.edit,
                 onIconClick = {
                     isEditDescription = !isEditDescription
                 },
-                modifier = Modifier.padding(top = 10.dp)
+                modifier = Modifier
+                    .padding(top = 10.dp)
             )
 
             if (isEditDescription) {
@@ -269,37 +250,53 @@ fun MyProfileScreen(
                 )
             }
 
-            val tabs = listOf("Tất cả", "Thông tin", "Ảnh")
-
-            Row(
+            LazyRow(
                 modifier = Modifier
-                    .padding(10.dp)
                     .fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                contentPadding = PaddingValues(start = 10.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                tabs.forEachIndexed { index, title ->
-
-                    val isSelected = selectedIndex == index
-
-                    Button(
-                        onClick = { selectedIndex = index },
-                        modifier = Modifier,
-                        shape = RoundedCornerShape(30.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isSelected) Color(0xFFd10058).copy(alpha = 0.8f) else Color.White,
-                            contentColor = if (isSelected) Color.White else Color.Black
-                        ),
-                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+                items(tabList) { tab ->
+                    val isSelected = selectedIndex == tab
+                    Box(
+                        modifier = Modifier
+                            .clip(
+                                RoundedCornerShape(1000.dp)
+                            )
+                            .clickable {
+                                selectedIndex = tab
+                            }
+                            .background(
+                                color = if (isSelected)
+                                    colorResource(R.color.base)
+                                else
+                                    MaterialTheme.colorScheme.surface,
+                                shape = RoundedCornerShape(1000.dp)
+                            ),
                     ) {
-                        Text(text = title)
+                        Text(
+                            text = stringResource(id = tab),
+                            color = if (isSelected)
+                                Color.White
+                            else
+                                MaterialTheme.colorScheme.onSurface,
+                            fontSize = 12.sp,
+                            modifier = Modifier
+                                .padding(horizontal = 12.dp, vertical = 8.dp)
+                                .align(
+                                    Alignment.Center
+                                ),
+                            fontFamily = fontOpenSansBoldHelper()
+                        )
                     }
                 }
             }
 
             when (selectedIndex) {
-                0 -> {
+                R.string.all -> {
                     TextAndIcon(
-                        text = "Thông tin cá nhân",
+                        text = stringResource(R.string.personal_profile),
                         icon = R.drawable.edit,
                         onIconClick = {
 
@@ -314,19 +311,21 @@ fun MyProfileScreen(
                         modifier = Modifier
                             .padding(10.dp)
                     )
-                    posts.forEach { post ->
-                        userId?.let {
-                            PostItemView(
-                                post = post,
-                                navController = navController,
-                                userId = it
-                            )
-                        }
-
-                    }
+//                    posts.forEach { post ->
+//                        userId?.let {
+//                            PostItemView(
+//                                post = post,
+//                                userId = it,
+//                                onCommentClick = {
+//                                },
+//                                modifier = Modifier
+//                            )
+//                        }
+//
+//                    }
                 }
 
-                1 -> {
+                R.string.personal_profile -> {
                     Row(
                         modifier = Modifier
                             .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -338,6 +337,7 @@ fun MyProfileScreen(
                             text = "Thông tin cá nhân",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
+                            fontFamily = fontOpenSansBoldHelper()
                         )
                         Icon(
                             imageVector = Icons.Default.Edit,
@@ -386,7 +386,7 @@ fun MyProfileScreen(
                     }
                 }
 
-                2 -> {
+                R.string.photos -> {
                     Text(
                         text = "Ảnh",
                         fontSize = 18.sp,
@@ -433,15 +433,19 @@ fun FriendsPreview(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Bạn bè",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
+                text = stringResource(R.string.friends),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Text(
-                text = "Xem tất cả",
-                color = Color.Blue,
-                modifier = Modifier.clickable { onSeeAllClick() }
+                text = stringResource(R.string.see_all),
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier
+                    .clickable { onSeeAllClick() },
+                fontSize = 12.sp,
+
             )
         }
 
@@ -524,15 +528,16 @@ fun TextAndIcon(
     ) {
         Text(
             text = text,
-            fontSize = 18.sp,
+            fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
         )
 
         Image(
             painter = painterResource(icon),
             contentDescription = null,
             modifier = Modifier
-                .size(16.dp)
+                .size(12.dp)
                 .clickable { onIconClick() }
         )
     }
@@ -571,4 +576,10 @@ fun FriendItem(
         )
     }
 }
+
+val tabList = listOf(
+    R.string.all,
+    R.string.info,
+    R.string.photos
+)
 

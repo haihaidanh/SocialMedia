@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,15 +37,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.socialmedia1903.R
 import com.example.socialmedia1903.presentation.screen.login.InputComponent
-import kotlin.math.sign
 
 @Composable
 fun SignUpScreen(
@@ -82,7 +78,7 @@ fun SignUpScreen(
     ) {
         // Back icon
         Image(
-            painter = painterResource(R.drawable.baseline_arrow_back_ios_new_24),
+            painter = painterResource(R.drawable.back),
             contentDescription = null,
             modifier = Modifier
                 .size(30.dp)

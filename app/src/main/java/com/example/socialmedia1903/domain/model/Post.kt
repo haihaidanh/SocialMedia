@@ -8,7 +8,7 @@ data class Post(
     val id: String = "",
     val authorId: String = "",
     val groupId: String? = null,
-    val content: String = "",
+    val content: String? = null,
     val type: PostType = PostType.TEXT,
     val contentType: String = "",
     val anonymous: Boolean = false,
@@ -23,5 +23,6 @@ data class Post(
     val likes: List<Like> = emptyList(),
     val media: List<Media> = emptyList(),
     val group: GroupInfo? = null,
-    val isOwnPost: Boolean = false
+    val isOwnPost: Boolean = false,
+    val background: String? = null
 )

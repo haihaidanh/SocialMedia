@@ -8,5 +8,6 @@ enum class NotificationType {
     ADD_FRIEND,
     INVITE_GROUP,
     ACCEPT,
-    REJECT
+    REJECT,
+    POST
 }

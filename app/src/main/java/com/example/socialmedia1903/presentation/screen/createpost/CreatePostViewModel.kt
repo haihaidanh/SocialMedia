@@ -25,8 +25,8 @@ class CreatePostViewModel @Inject constructor(
     private val _isSaveToRoom = MutableStateFlow(true)
     val isSaveToRoom: StateFlow<Boolean> = _isSaveToRoom
 
-    private val _isSavePost = MutableStateFlow(false)
-    val isSavePost: StateFlow<Boolean> = _isSavePost
+    private val _loadingSave = MutableStateFlow(false)
+    val loadingSave: StateFlow<Boolean> = _loadingSave
 
     fun saveImageUri(uri: String) {
         viewModelScope.launch {
@@ -42,6 +42,10 @@ class CreatePostViewModel @Inject constructor(
         }
     }
 
+    fun setLoadingSave(value: Boolean) {
+        _loadingSave.value = value
+    }
+
     fun createPost(
         postId: String,
         content: String,
@@ -50,6 +54,7 @@ class CreatePostViewModel @Inject constructor(
         contentType: String,
         anonymous: Boolean,
         visibility: PostVisibility,
+        background: String?,
         context: Context
     ) {
         val post = Post(
@@ -60,8 +65,10 @@ class CreatePostViewModel @Inject constructor(
             contentType = contentType,
             anonymous = anonymous,
             visibility = visibility,
+            background = background
         )
 
+        Log.d("hai", "Creating post: $post")
 
         viewModelScope.launch {
             val workId = createPostUseCase(post)
@@ -69,48 +76,10 @@ class CreatePostViewModel @Inject constructor(
                 .getWorkInfoByIdLiveData(workId).observeForever { workInfo ->
                     if (workInfo != null) {
                         if (workInfo.state.isFinished) {
-                            _isSavePost.value = true
+                            _loadingSave.value = false
                         }
                     }
                 }
         }
     }
-
-
-//    fun createPost(
-//        postId: String,
-//        content: String,
-//        type: PostType,
-//        groupId: String?,
-//        contentType: String,
-//        anonymous: Boolean,
-//        visibility: String,
-//        context: Context
-//    ){
-//        viewModelScope.launch {
-//            _isSavePost.value = false
-//            val result = createPostUseCase(
-//                postId = postId,
-//                content = content,
-//                type = type,
-//                groupId = groupId,
-//                contentType = contentType,
-//                anonymous = anonymous,
-//                visibility = visibility
-//            )
-//            //_isSavePost.value = result
-//            if(result){
-//
-//                val isDone =  createPostUseCase.uploadFile(context, postId)
-//                if(isDone){
-//                    clearAllImages()
-//                    _isSavePost.value = true
-//                }
-//
-//            }else{
-//                _isSavePost.value = false
-//            }
-//
-//        }
-//    }
 }

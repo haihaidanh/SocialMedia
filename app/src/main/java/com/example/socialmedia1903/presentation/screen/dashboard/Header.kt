@@ -22,10 +22,10 @@ fun Header(
     drawerOnClick: () -> Unit={},
     searchOnClick: () -> Unit={},
     title: String= "Dashboard",
-    //modifier: Modifier
+    modifier: Modifier
 ){
     TopAppBar(
-        modifier = Modifier,
+        modifier = modifier,
         title = {
             Text(
                 text = title,

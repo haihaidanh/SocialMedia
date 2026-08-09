@@ -73,6 +73,4 @@ class DashboardViewModel @Inject constructor(
             _userId.value = userRepository.getUserId()
         }
     }
-
-
 }

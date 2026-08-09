@@ -1,8 +1,10 @@
 package com.example.socialmedia1903.presentation.screen.notification
 
 import android.icu.number.Scale
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.snapping.SnapPosition
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,8 +26,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.socialmedia1903.R
+import com.example.socialmedia1903.data.utils.AppUtils.fontOpenSansMediumHelper
+import com.example.socialmedia1903.data.utils.AppUtils.fontOpenSansSemiBoldHelper
+import com.example.socialmedia1903.presentation.component.BaseButton
+import com.example.socialmedia1903.presentation.component.RoundButton
 
 @Composable
 fun InviteGroupItem(
@@ -38,66 +49,84 @@ fun InviteGroupItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(12.dp)
+            .background(
+                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(12.dp)
+            ).padding(10.dp)
     ) {
 
-        // Avatar section
         Box(
-            modifier = Modifier.size(56.dp)
+            modifier = Modifier.size(42.dp)
         ) {
 
-            // Group avatar (vuông bo góc)
             AsyncImage(
                 model = groupAvatar,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .size(50.dp)
+                    .size(40.dp)
                     .clip(RoundedCornerShape(10.dp))
                     .align(Alignment.Center)
             )
 
-            // Inviter avatar (đè góc dưới phải)
             AsyncImage(
                 model = inviterAvatar,
                 contentDescription = null,
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(24.dp)
                     .align(Alignment.BottomEnd)
                     .clip(CircleShape)
-                    .border(2.dp, Color.White, CircleShape)
+                    .border(
+                        2.dp,
+                        MaterialTheme.colorScheme.surface,
+                        CircleShape
+                    )
             )
         }
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        // Content
         Column(
             modifier = Modifier.weight(1f)
         ) {
             Text(
-                text = "mời bạn tham gia vào nhóm $groupName",
-                style = MaterialTheme.typography.bodyMedium
+                text = stringResource(
+                    R.string.invite_group_noti,
+                    groupName),
+                fontWeight = FontWeight.Medium,
+                fontFamily = fontOpenSansMediumHelper(),
+                fontSize = 12.sp,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Row {
-                Button(
-                    onClick = onAccept,
-                    modifier = Modifier.height(36.dp)
-                ) {
-                    Text("Đồng ý")
-                }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                BaseButton(
+                    title = R.string.accept,
+                    onClick = {
+                        onAccept()
+                    },
+                    modifier = Modifier.weight(1f),
+                    textSize = 12,
+                    radius = 1000
+                )
 
-                Spacer(modifier = Modifier.width(8.dp))
-
-                OutlinedButton(
-                    onClick = onView,
-                    modifier = Modifier.height(36.dp)
-                ) {
-                    Text("View")
-                }
+                RoundButton(
+                    title = R.string.view,
+                    onClick = {
+                        onView()
+                    },
+                    modifier = Modifier.weight(1f),
+                    radius = 1000,
+                    textSize = 12,
+                )
             }
         }
     }

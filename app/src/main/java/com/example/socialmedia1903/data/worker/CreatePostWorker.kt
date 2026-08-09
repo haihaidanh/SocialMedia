@@ -32,7 +32,10 @@ class CreatePostWorker @AssistedInject constructor(
             val visibility = inputData.getString("visibility")
                 ?.let { runCatching { PostVisibility.valueOf(it) }.getOrNull() }
             val images = inputData.getStringArray("images") ?: emptyArray()
-            Log.d("hai", images.joinToString(","))
+            val background  = inputData.getString("background")
+
+
+            Log.d("hai", "hai"+background.toString())
             val multiparts = images.map {
                 AppUtils.uriToMultipart(
                     context = applicationContext,
@@ -48,7 +51,8 @@ class CreatePostWorker @AssistedInject constructor(
                     groupId = groupId,
                     contentType = contentType ?: "",
                     anonymous = anonymous,
-                    visibility = visibility ?:  PostVisibility.PUBLIC
+                    visibility = visibility ?:  PostVisibility.PUBLIC,
+                    background = background
                 )
             )
             if(images.isNotEmpty()) {

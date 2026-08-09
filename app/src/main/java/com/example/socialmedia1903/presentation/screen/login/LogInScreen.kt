@@ -9,19 +9,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,33 +30,29 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.socialmedia1903.R
+import com.example.socialmedia1903.data.utils.AppUtils.fontOpenSansBoldHelper
+import com.example.socialmedia1903.presentation.component.BaseButton
+import com.example.socialmedia1903.presentation.theme.baseColor
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import kotlinx.coroutines.delay
 
 @Composable
 fun LoginScreen(
     logInViewModel: LogInViewModel = hiltViewModel(),
     navController: NavController,
-    paddingValues: PaddingValues
 ) {
     var name by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val error by logInViewModel.error.collectAsState()
 
     val loading by logInViewModel.loading.collectAsState()
-    val InterFont = FontFamily(
-        Font(R.font.playwriteie_variablefont_wght)
-    )
 
     val context = LocalContext.current
 
@@ -82,7 +72,6 @@ fun LoginScreen(
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             val account = task.result
 
-            // 👉 gọi ViewModel
             logInViewModel.loginWithGoogle(account.idToken!!)
         }
     }
@@ -95,63 +84,71 @@ fun LoginScreen(
 
     Box(
         modifier = Modifier
-            .padding(paddingValues)
             .fillMaxSize()
-            .imePadding(),
-        contentAlignment = Alignment.Center
+            .imePadding()
+            .background(
+                baseColor
+            ),
     ) {
 
         Column(
             modifier = Modifier
-                .padding(24.dp)
-                .fillMaxSize()
-                .align(Alignment.BottomCenter)
-                .background(Color.White),
-            verticalArrangement = Arrangement.Center
+                .padding(10.dp)
+                .fillMaxWidth()
+                .clip(
+                    RoundedCornerShape(24.dp)
+                )
+                .background(Color.White)
+                .align(Alignment.Center)
+                .padding(10.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             Text(
-                text = "Đăng nhập",
-                fontSize = 28.sp,
-                fontFamily = InterFont,
-                fontWeight = FontWeight.Black
+                text = stringResource(R.string.login),
+                fontSize = 24.sp,
+                fontFamily = fontOpenSansBoldHelper(),
+                fontWeight = FontWeight.Bold,
+                color = baseColor
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
-
-            InputComponent(
-                placeholder = "Tên đăng nhập",
-                onValueChange = { name = it },
-                icon = R.drawable.username_login,
-                error = error.errName
+            AuthInput(
+                modifier = Modifier.padding(vertical = 8.dp),
+                searchQuery = name,
+                onSearchQueryChange = { name = it },
+                password = false,
+                icon = R.drawable.user,
+                placeholder = stringResource(R.string.username)
             )
 
-            InputComponent(
-                placeholder = "Mật khẩu",
-                onValueChange = { password = it },
-                isPwd = true,
-                icon = R.drawable.pwd_login,
-                error = error.errPassword
+            AuthInput(
+                modifier = Modifier.padding(bottom = 8.dp),
+                searchQuery = password,
+                onSearchQueryChange = { password = it },
+                password = true,
+                icon = R.drawable.password,
+                placeholder = stringResource(R.string.password)
             )
 
-            Button(
+            BaseButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                title = R.string.login,
                 onClick = {
                     logInViewModel.logIn(name, password)
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFd10058),
-                )
-            ) {
-                Text("Đăng nhập")
-            }
+                }
+            )
             Text(
-                text = "Tạo tài khoản",
-                fontSize = 16.sp,
+                text = stringResource(R.string.sign_up_navigate),
                 modifier = Modifier
+                    .padding(vertical = 8.dp)
                     .clickable {
                         navController.navigate("signup")
-                    }
+                    },
+                fontSize = 12.sp,
+                color = baseColor
             )
         }
 
@@ -163,9 +160,11 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Others",
+                text = stringResource(R.string.others),
                 fontSize = 14.sp,
-                color = Color.Black,
+                color = Color.White,
+                fontFamily = fontOpenSansBoldHelper(),
+                fontWeight = FontWeight.Bold
             )
 
             Row {

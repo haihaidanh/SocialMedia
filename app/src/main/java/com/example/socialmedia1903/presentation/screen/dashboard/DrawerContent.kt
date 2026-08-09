@@ -2,86 +2,101 @@ package com.example.socialmedia1903.presentation.screen.dashboard
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Divider
-import androidx.compose.material3.DrawerState
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import kotlinx.coroutines.launch
+import com.example.socialmedia1903.R
+import com.example.socialmedia1903.data.utils.AppUtils.fontOpenSansBoldHelper
+import com.example.socialmedia1903.data.utils.AppUtils.fontOpenSansMediumHelper
+import com.example.socialmedia1903.presentation.core.modifier.staticStatusBarPadding
 
 @Composable
 fun DrawerItem(
     title: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier
 ) {
-    Text(
-        text = title,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(16.dp)
-    )
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.edit),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(start = 10.dp)
+                .size(12.dp),
+            tint = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = title,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    onClick()
+                }
+            ,
+            fontSize = 16.sp,
+            fontFamily = fontOpenSansMediumHelper(),
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+
+
 }
 
 @Composable
 fun DrawerContent(
-    navController: NavController,
-    drawerState: DrawerState,
-    viewmodel: DashboardViewModel
+    avatar: String,
+    username: String?,
+    onCreateGroup: () -> Unit,
+    onMyGroups: () -> Unit,
+    onSetting: () -> Unit,
+    onLogout: () -> Unit,
 ) {
-
-    LaunchedEffect(Unit) {
-        viewmodel.getAvatar()
-    }
-
-    LaunchedEffect(Unit) {
-        viewmodel.getUserName()
-    }
-
-    val scope = rememberCoroutineScope()
-    val avatar by viewmodel.avatar.collectAsState()
-    val username by viewmodel.username.collectAsState()
-
     Column(
         modifier = Modifier
             .fillMaxHeight()
-            .width(300.dp)
-            .background(color = Color.LightGray, shape = RoundedCornerShape(30.dp))
+            .fillMaxWidth(0.7f)
+            .background(
+                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(bottomEnd = 30.dp, topEnd = 30.dp)
+            )
     ) {
 
         Row(
             modifier = Modifier
-                .padding(top = 20.dp)
-                .padding(horizontal = 5.dp)
                 .fillMaxWidth()
+                .staticStatusBarPadding()
+                .padding(horizontal = 5.dp)
                 .background(
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(10.dp)
                 ),
             verticalAlignment = Alignment.CenterVertically
-        ){
+        ) {
             AsyncImage(
                 model = avatar,
                 contentDescription = "hai",
@@ -96,7 +111,9 @@ fun DrawerContent(
                 text = username ?: "hai",
                 modifier = Modifier.padding(16.dp),
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                fontFamily = fontOpenSansBoldHelper(),
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
 
@@ -104,37 +121,38 @@ fun DrawerContent(
             modifier = Modifier
                 .padding(5.dp)
                 .background(
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(10.dp)
-                )
+                ),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.Start
         ) {
 
+            DrawerItem(
+                title = stringResource(id = R.string.create_group),
+                onClick = onCreateGroup,
+                modifier = Modifier
+            )
 
-            Divider()
+            DrawerItem(
+                title = stringResource(id = R.string.my_groups),
+                onClick = onMyGroups,
+                modifier = Modifier
+            )
 
-            // 🔹 Item
-            DrawerItem("Tạo nhóm") {
-                navController.navigate("create-group")
-                scope.launch { drawerState.close() }
-            }
+            DrawerItem(
+                title = stringResource(id = R.string.setting),
+                onClick = onSetting,
+                modifier = Modifier
+            )
 
-            DrawerItem("Nhóm của tôi") {
-                navController.navigate("my-group")
-                scope.launch { drawerState.close() }
-            }
-
-            DrawerItem("Cài đặt") {
-                navController.navigate("setting")
-                scope.launch { drawerState.close() }
-            }
-
-            DrawerItem("Logout") {
-                navController.navigate("login") {
-                    viewmodel.logOut()
-                    scope.launch { drawerState.close() }
-                    popUpTo(0)
-                }
-            }
+            DrawerItem(
+                title = stringResource(id = R.string.logout),
+                onClick = {
+                    onLogout()
+                },
+                modifier = Modifier
+            )
         }
 
     }

@@ -1,38 +1,39 @@
 package com.example.socialmedia1903.presentation.screen.search
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.socialmedia1903.R
+import com.example.socialmedia1903.data.utils.AppUtils.fontOpenSansBoldHelper
+import com.example.socialmedia1903.presentation.component.Header
+import com.example.socialmedia1903.presentation.core.modifier.staticStatusBarPadding
+import com.example.socialmedia1903.presentation.core.post.PostItemView
 import com.example.socialmedia1903.presentation.screen.dashboard.DashboardViewModel
-import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItem
-import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItemView
 
 @Composable
 fun ResultSearchScreen(
@@ -47,89 +48,93 @@ fun ResultSearchScreen(
         }
     }
 
-    val users = viewModel.users.collectAsState().value
-    val posts = viewModel.posts.collectAsState().value
+    val users by viewModel.users.collectAsState()
+    val posts by viewModel.posts.collectAsState()
     val scroll = rememberScrollState()
 
     LaunchedEffect(Unit) {
         viewModel.onQueryChange(query)
-    }
-
-    LaunchedEffect(Unit) {
         dashboardViewModel.getUserId()
     }
 
-    val userId = dashboardViewModel.userId.collectAsState().value
+    val userId by dashboardViewModel.userId.collectAsState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .background(
+                color = MaterialTheme.colorScheme.background,
+            )
+            .padding(horizontal = 10.dp)
     ) {
-        Row(
+        Header(
+            title = stringResource(R.string.result_search),
+            onBackClick = {
+                navController.navigate("home") {
+                    popUpTo(0)
+                }
+            },
             modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Image(
-                painter = painterResource(R.drawable.baseline_arrow_back_ios_new_24),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(30.dp)
-                    .clickable {
-                        navController.popBackStack()
-                    }
-            )
-
-            Text(
-                text = "Kết quả",
-                fontWeight = FontWeight.Bold,
-                fontSize = 22.sp
-            )
-        }
+                .fillMaxWidth()
+                .staticStatusBarPadding()
+        )
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(scroll)
+                .verticalScroll(scroll),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
-
             if (users.isNotEmpty()) {
                 Text(
-                    text = "Mọi người",
+                    text = stringResource(R.string.people),
                     fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-
                 LazyColumn(
                     modifier = Modifier.heightIn(max = 200.dp)
                 ) {
                     items(users) { user ->
-                        searchUserItem(user)
+                        SearchUserItem(user)
                     }
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
             }
 
-            // 🔹 Section: Bài viết
             if (posts.isNotEmpty()) {
                 Text(
-                    text = "Bài viết",
+                    text = stringResource(R.string.posts),
                     fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
+                    fontSize = 14.sp,
+                    fontFamily = fontOpenSansBoldHelper(),
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-
                 posts.forEach { post ->
                     userId?.let {
                         PostItemView(
                             post,
-                            navController = navController,
-                            userId = it
+                            userId = it,
+                            onCommentClick = {
+                                navController.navigate("post_detail/${post.id}")
+                            },
+                            modifier = Modifier
+                                .padding(bottom = 4.dp),
+                            onGroupClick = {
+
+                            },
+                            onPostClick = {
+
+                            },
+                            onUserClick = {
+
+                            },
+                            onLikePost = { postId, type ->
+
+                            },
+                            onShowReact = { postId, show ->
+
+                            },
+                            showReactions = false,
                         )
                     }
                 }

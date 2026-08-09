@@ -49,7 +49,14 @@ import com.example.socialmedia1903.domain.model.SearchResult
 class RemoteDataSource @Inject constructor(
     private val appService: AppService
 ) {
-    suspend fun signUp(uri: Uri, name: String, username: String, password: String, gender: Int, context: Context): SignUpResponse{
+    suspend fun signUp(
+        uri: Uri,
+        name: String,
+        username: String,
+        password: String,
+        gender: Int,
+        context: Context
+    ): SignUpResponse {
         val image = AppUtils.uriToMultipart(context, uri)
         val response = appService.signUp(
             image,
@@ -58,7 +65,7 @@ class RemoteDataSource @Inject constructor(
             password,
             gender
         )
-        if(!response.isSuccessful){
+        if (!response.isSuccessful) {
             throw Exception("Failed to sign up")
         }
         return response.body() ?: SignUpResponse(1, "Failed to sign up")
@@ -88,23 +95,23 @@ class RemoteDataSource @Inject constructor(
     }
 
     suspend fun getDetailPost(postId: String): Post {
-        val response =  appService.getDetailPost(postId)
-        if (!response.isSuccessful){
+        val response = appService.getDetailPost(postId)
+        if (!response.isSuccessful) {
             throw Exception("Failed to get detail post")
         }
         return response.body()?.post?.toPost() ?: Post()
 
     }
 
-    suspend fun getAllComments(postId: String): List<Comment>{
+    suspend fun getAllComments(postId: String): List<Comment> {
         return appService.getAllComment(postId, "all").comments.map { it.toComment() }
     }
 
-    suspend fun logOut(){
+    suspend fun logOut() {
         appService.logOut()
     }
 
-    suspend fun commentPost(postId: String, parentId: String?, content: String){
+    suspend fun commentPost(postId: String, parentId: String?, content: String) {
         appService.commentPost(CommentRequest(postId, parentId, content))
     }
 
@@ -114,25 +121,26 @@ class RemoteDataSource @Inject constructor(
         status: String,
         avatarUri: Uri,
         context: Context
-    ): Boolean{
+    ): Boolean {
         val multipart = AppUtils.uriToMultipart(context, avatarUri)
         val response = appService.createGroup(multipart, name, status)
-        if (!response.isSuccessful){
+        if (!response.isSuccessful) {
             throw Exception("Failed to create group")
         }
         return true
     }
-    suspend fun getGroups(): List<GroupInfo>{
+
+    suspend fun getGroups(): List<GroupInfo> {
         val response = appService.getGroups()
-        if (!response.isSuccessful){
+        if (!response.isSuccessful) {
             throw Exception("Failed to get groups")
         }
         return response.body()?.groups?.map { it.toGroupInfo() } ?: emptyList()
     }
 
-    suspend fun getGroupDetail(groupId: String): Group{
+    suspend fun getGroupDetail(groupId: String): Group {
         val response = appService.getGroupDetail(groupId)
-        if (!response.isSuccessful){
+        if (!response.isSuccessful) {
             throw Exception("Failed to get group detail")
         }
         return response.body()?.toGroup() ?: Group(GroupInfo(), emptyList())
@@ -140,22 +148,30 @@ class RemoteDataSource @Inject constructor(
 
     suspend fun getProfile(id: String): Profile {
         val response = appService.getProfile(id)
-        if (!response.isSuccessful){
+        if (!response.isSuccessful) {
             throw Exception("Failed to get profile")
         }
         //Log.d("hai", "profile: ${response.body()?.status}")
-        return response.body()?.ToProfile() ?: Profile(ProfileInfo(), InvitationStatus.NONE, emptyList())
+        return response.body()?.ToProfile() ?: Profile(
+            ProfileInfo(),
+            InvitationStatus.NONE,
+            emptyList()
+        )
     }
 
     suspend fun getMyProfile(): Profile {
         val response = appService.getMyProfile()
-        if (!response.isSuccessful){
+        if (!response.isSuccessful) {
             throw Exception("Failed to get profile")
         }
-        return response.body()?.ToProfile() ?: Profile(ProfileInfo(), InvitationStatus.NONE,emptyList())
+        return response.body()?.ToProfile() ?: Profile(
+            ProfileInfo(),
+            InvitationStatus.NONE,
+            emptyList()
+        )
     }
 
-    suspend fun getFriends(): List<Friendship>{
+    suspend fun getFriends(): List<Friendship> {
         val response = appService.getFriends()
         if (!response.isSuccessful) {
             throw Exception("Failed to get friends")
@@ -163,33 +179,34 @@ class RemoteDataSource @Inject constructor(
         return response.body()?.friends?.toFriendshipList() ?: emptyList()
     }
 
-    suspend fun invitation(type: String, friendId: String?, groupId: String?){
+    suspend fun invitation(type: String, friendId: String?, groupId: String?) {
         val response = appService.invitation(type, AddFriendRequest(friendId, groupId))
-        if(!response.isSuccessful){
+        if (!response.isSuccessful) {
             throw Exception("Failed to send invitation")
         }
         return response.body() ?: Unit
     }
 
-    suspend fun getNotifications(): List<Notification>{
+    suspend fun getNotifications(): List<Notification> {
         val response = appService.getNotifications()
-        if (!response.isSuccessful){
+        Log.d("hai", "get notifications: ${response.body()?.notifications}")
+        if (!response.isSuccessful) {
             throw Exception("Failed to get notifications")
         }
         return response.body()?.notifications?.toNotificationList() ?: emptyList()
     }
 
-    suspend fun acceptInvitation(type: InvitationType, groupId: String? = null, userId: String){
+    suspend fun acceptInvitation(type: InvitationType, groupId: String? = null, userId: String) {
         val response = appService.acceptInvitation(type, groupId, userId)
-        if (!response.isSuccessful){
+        if (!response.isSuccessful) {
             throw Exception("Failed to accept invitation")
         }
         return response.body() ?: Unit
     }
 
-    suspend fun rejectInvitation(type: InvitationType, groupId: String? = null, userId: String){
+    suspend fun rejectInvitation(type: InvitationType, groupId: String? = null, userId: String) {
         val response = appService.rejectInvitation(type, groupId, userId)
-        if (!response.isSuccessful){
+        if (!response.isSuccessful) {
             throw Exception("Failed to reject invitation")
         }
         return response.body() ?: Unit
@@ -197,9 +214,9 @@ class RemoteDataSource @Inject constructor(
 
     suspend fun unFriend(
         friendId: String
-    ){
+    ) {
         val response = appService.unFriend(friendId)
-        if (!response.isSuccessful){
+        if (!response.isSuccessful) {
             throw Exception("Failed to unfriend")
         }
         return response.body() ?: Unit
@@ -215,46 +232,45 @@ class RemoteDataSource @Inject constructor(
         return response.body() ?: Unit
     }
 
-    suspend fun createStory(uri: Uri, context: Context){
+    suspend fun createStory(uri: Uri, context: Context) {
         val multipart = AppUtils.uriToMultipart(context, uri)
         val response = appService.createStory(multipart)
-        if (!response.isSuccessful){
+        if (!response.isSuccessful) {
             throw Exception("Failed to create story")
         }
         return response.body() ?: Unit
     }
 
-    suspend fun getStories(): List<StoryResponse>{
+    suspend fun getStories(): List<StoryResponse> {
         val response = appService.getStories()
-        Log.d("hai", response.body().toString())
-        if (!response.isSuccessful){
+        if (!response.isSuccessful) {
             throw Exception("Failed to get stories")
         }
         return response.body()?.stories ?: emptyList()
     }
 
-    suspend fun deletePost(postId: String){
+    suspend fun deletePost(postId: String) {
         Log.d("hai", "delete post: $postId")
         val response = appService.deletePost(postId)
-        if (!response.isSuccessful){
+        if (!response.isSuccessful) {
             throw Exception("Failed to delete post")
         }
         return response.body() ?: Unit
     }
 
-    suspend fun undoDeletePost(postId: String){
+    suspend fun undoDeletePost(postId: String) {
         Log.d("hai", "undo delete post: $postId")
         val response = appService.undoDeletePost(postId)
-        if (!response.isSuccessful){
+        if (!response.isSuccessful) {
             throw Exception("Failed to undo delete post")
         }
         return response.body() ?: Unit
     }
 
-    suspend fun editBackground(uri: Uri, context: Context){
+    suspend fun editBackground(uri: Uri, context: Context) {
         val multipart = AppUtils.uriToMultipart(context, uri)
         val response = appService.editBackground(multipart)
-        if (!response.isSuccessful){
+        if (!response.isSuccessful) {
             throw Exception("Failed to edit background")
         }
         return response.body() ?: Unit

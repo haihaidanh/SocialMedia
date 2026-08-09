@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,6 +42,8 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
@@ -48,15 +52,17 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.socialmedia1903.data.dto.response.GroupInfoResponse
+import com.example.socialmedia1903.R
+import com.example.socialmedia1903.data.utils.AppUtils.fontOpenSansBoldHelper
 import com.example.socialmedia1903.domain.model.GroupInfo
+import com.example.socialmedia1903.presentation.component.BaseButton
+import com.example.socialmedia1903.presentation.core.modifier.staticStatusBarPadding
+import com.example.socialmedia1903.presentation.core.post.PostItemView
+import com.example.socialmedia1903.presentation.screen.dashboard.CreatePostItem
 import com.example.socialmedia1903.presentation.screen.dashboard.DashboardViewModel
-import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItem
-import com.example.socialmedia1903.presentation.screen.dashboard.createPostScreen
-import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItemView
-import com.example.socialmedia1903.presentation.screen.profile.InvitationViewModel
 import com.example.socialmedia1903.presentation.screen.profile.BottomSheet
 import com.example.socialmedia1903.presentation.screen.profile.BottomSheetItem
+import com.example.socialmedia1903.presentation.screen.profile.InvitationViewModel
 import kotlin.math.roundToInt
 
 @Composable
@@ -73,17 +79,8 @@ fun GroupScreen(
         groupId?.let {
             groupViewModel.getGroupDetail(it)
         }
-    }
-
-    LaunchedEffect(Unit) {
         dashboardViewModel.getAvatar()
-    }
-
-    LaunchedEffect(Unit) {
         groupViewModel.getFriends()
-    }
-
-    LaunchedEffect(Unit) {
         dashboardViewModel.getUserId()
     }
 
@@ -108,49 +105,10 @@ fun GroupScreen(
         )
     }
 
-    //phản hồi
-    BottomSheet(
-        show = showResponse,
-        content = listOf(
-            BottomSheetItem(
-                "Đồng ý",
-                onClick = {
-
-                }
-            ),
-            BottomSheetItem(
-                "Từ chối",
-                onClick = {
-
-                }
-            )
-        ),
-        onDismiss = {
-            showResponse = false
-        }
-    )
-
-    BottomSheet(
-        show = showLeaveGroupBottomSheet,
-        content = listOf(
-            BottomSheetItem("Rời nhóm") {
-                groupViewModel.leaveGroup(groupId)
-                showLeaveGroupBottomSheet = false
-            }
-        ),
-        onDismiss = { showLeaveGroupBottomSheet = false }
-    )
-
-
-    // Thay thế đoạn khai báo cũ bằng đoạn này:
     val maxHeaderHeight = 150.dp
     val headerHeightPx = with(LocalDensity.current) { maxHeaderHeight.toPx() }
 
-// Biến này quyết định Column đang nằm ở đâu (bắt đầu từ 200dp)
     var contentOffsetY by remember { mutableStateOf(headerHeightPx) }
-
-
-// ... (Các biến maxHeaderHeight, headerHeightPx giữ nguyên)
 
 
     val nestedScrollConnection = remember {
@@ -190,24 +148,31 @@ fun GroupScreen(
     val isCollapsed = contentOffsetY <= topBarHeightPx
 
 
-// Tạo hiệu ứng chuyển màu mượt mà cho background của Topbar
     val topBarBackgroundColor by animateColorAsState(
-        targetValue = if (isCollapsed) Color.White else Color.Transparent,
-        label = "TopBarColor"
+        targetValue = if (isCollapsed)
+            MaterialTheme.colorScheme.surface
+        else
+            Color.Transparent,
+        label = "TopBarColor",
+
     )
 
-// Tạo hiệu ứng chuyển màu cho Icon/Text (Trắng khi trên ảnh, Đen khi trên nền trắng)
     val contentColor by animateColorAsState(
-        targetValue = if (isCollapsed) Color.Black else Color.White,
+        targetValue = if (isCollapsed)
+            MaterialTheme.colorScheme.onSurface
+        else
+            MaterialTheme.colorScheme.onBackground,
         label = "ContentColor"
     )
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .nestedScroll(nestedScrollConnection) // Gán bộ lắng nghe cuộn vào đây
+            .nestedScroll(nestedScrollConnection)
+            .background(
+                MaterialTheme.colorScheme.surface
+            )
     ) {
-        // 1. ẢNH BÌA (Header)
         AsyncImage(
             model = group.imageUrl,
             contentDescription = "Cover Image",
@@ -215,30 +180,31 @@ fun GroupScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(maxHeaderHeight)
-                .background(Color.White)
+
         )
 
-        // 2. NỘI DUNG CHÍNH (Chiếm diện tích còn lại và đẩy lên)
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .offset {
-                    // Di chuyển Column dựa trên độ cuộn của Header
                     IntOffset(x = 0, y = contentOffsetY.roundToInt())
                 }
-                .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-                .background(Color.White, RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                .clip(
+                    RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+                )
+                .background(
+                    MaterialTheme.colorScheme.background,
+                    RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+                )
         ) {
-
-
             LazyColumn(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                contentPadding = PaddingValues(bottom = 16.dp)
             ) {
-                // Phần thông tin nhóm
                 item {
                     GroupTitle(
                         group = group,
-                        navController = navController,
                         showFriendDialog = { showFriendDialog = true },
                         showBottomSheet = {
                             showLeaveGroupBottomSheet = true
@@ -249,74 +215,122 @@ fun GroupScreen(
                     )
                 }
 
-                // Phần tạo bài viết
                 item {
-                    createPostScreen(
-                        onCreatePost = { navController.navigate("create_post?groupId=${groupId}") },
+                    CreatePostItem(
+                        onCreatePost = {
+                            navController.navigate("create_post?groupId=${groupId}")
+                        },
                         modifier = Modifier.padding(10.dp),
                         avatar = avatar ?: ""
                     )
                 }
 
-                // Tiêu đề bài viết
                 item {
                     Text(
-                        text = "Bài viết",
+                        text = stringResource(R.string.posts),
                         modifier = Modifier.padding(16.dp),
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontFamily = fontOpenSansBoldHelper()
                     )
                 }
 
-                // Danh sách bài viết (Dùng items thay vì forEach để tối ưu hiệu năng)
                 items(posts) { post ->
                     userId?.let { userId ->
                         PostItemView(
                             post,
-                            navController = navController,
-                            userId = userId
+                            userId = userId,
+                            onCommentClick = {
+
+                            },
+                            modifier = Modifier,
+                            showReactions = false,
+                            onLikePost = { postId, type ->
+
+                            },
+                            onShowReact = { postId, show ->
+
+                            },
+                            onGroupClick = {},
+                            onPostClick = {},
+                            onUserClick = {
+                                navController.navigate("profile/${post.authorId}")
+                            }
                         )
                     }
                 }
-
-                // Thêm Spacer cuối cùng để tránh bị che bởi lề dưới nếu cần
-                item { Spacer(modifier = Modifier.height(100.dp)) }
             }
         }
 
-
-        // 3. TOPBAR DỊCH CHUYỂN & BIẾN ĐỔI
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp) // Chiều cao chuẩn của TopAppBar
+                .staticStatusBarPadding()
+                .height(56.dp)
                 .background(topBarBackgroundColor)
                 .padding(horizontal = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = Icons.Default.ArrowBack,
+                painter = painterResource(id = R.drawable.back),
                 contentDescription = "Back",
                 modifier = Modifier
-                    .size(48.dp) // Kích thước bao gồm cả padding cho dễ bấm
+                    .size(48.dp)
                     .padding(12.dp)
-                    .clickable { navController.popBackStack() },
+                    .clickable {
+                        navController.popBackStack()
+                               },
                 tint = contentColor
             )
 
-            // Hiển thị tên nhóm khi đã cuộn lên
             if (isCollapsed) {
                 Text(
                     text = group.name,
-                    fontSize = 18.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = contentColor,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.padding(start = 8.dp),
+                    fontFamily = fontOpenSansBoldHelper(),
+                    color = contentColor
                 )
             }
         }
+        BottomSheet(
+            visibility = showLeaveGroupBottomSheet,
+            content = listOf(
+                BottomSheetItem(
+                    content = stringResource(R.string.leave),
+                    onClick = {
+                        groupViewModel.leaveGroup(groupId)
+                        showLeaveGroupBottomSheet = false
+                    }
+                )
+            ),
+            onDismiss = { showLeaveGroupBottomSheet = false }
+        )
+
+        BottomSheet(
+            visibility = showResponse,
+            content = listOf(
+                BottomSheetItem(
+                    content = stringResource(R.string.accept),
+                    onClick = {
+
+                    }
+                ),
+                BottomSheetItem(
+                    content = stringResource(R.string.reject),
+                    onClick = {
+
+                    }
+                )
+            ),
+            onDismiss = {
+                showResponse = false
+            }
+        )
     }
 }
 
@@ -324,7 +338,6 @@ fun GroupScreen(
 @Composable
 fun GroupTitle(
     group: GroupInfo,
-    navController: NavController,
     showFriendDialog: () -> Unit,
     showBottomSheet: () -> Unit,
     showResponse: () -> Unit
@@ -334,28 +347,39 @@ fun GroupTitle(
     Column(
         modifier = Modifier
             .padding(16.dp)
+            .background(
+                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(12.dp)
+            )
     ) {
         Text(
             text = group.name,
-            fontSize = 26.sp,
+            fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black
+            color = MaterialTheme.colorScheme.onSurface,
+            fontFamily = fontOpenSansBoldHelper()
         )
         Spacer(modifier = Modifier.height(8.dp))
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = if (group.status == "public") "Nhóm công khai" else "Nhóm riêng tư",
-                fontSize = 16.sp,
-                color = Color.Gray
+                text = if (group.status == "public")
+                    stringResource(R.string.public_group)
+                else
+                    stringResource(R.string.private_group),
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurface
             )
-            Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = group.memberCount.toString() + " thành viên",
-                fontSize = 16.sp,
-                color = Color.Gray
+                text = stringResource(
+                    R.string.member,
+                    group.memberCount.toString()
+                ),
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontFamily = fontOpenSansBoldHelper()
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
@@ -366,104 +390,79 @@ fun GroupTitle(
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             if (group.isOwner) {
-                Button(
-                    onClick = { },
+                BaseButton(
+                    onClick = {
+
+                    },
                     modifier = Modifier
                         .weight(0.5f)
                         .height(50.dp),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(
-                        text = "Cài Đặt",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                Button(
+                    radius = 12,
+                    textSize = 16,
+                    title = R.string.settings
+                )
+
+                BaseButton(
                     onClick = {
                         showFriendDialog()
                     },
                     modifier = Modifier
                         .weight(0.5f)
-                        .height(50.dp)
-                        .clickable {
-                            showFriendDialog()
-                        },
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(
-                        text = "Mời",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                        .height(50.dp),
+                    radius = 12,
+                    textSize = 16,
+                    title = R.string.invite
+                )
             } else if (group.memberGroups.isNotEmpty()) {
-                Button(
+
+                BaseButton(
                     onClick = {
                         showBottomSheet()
                     },
                     modifier = Modifier
                         .weight(0.5f)
                         .height(50.dp),
-                    shape = RoundedCornerShape(12.dp)
+                    radius = 12,
+                    textSize = 16,
+                    title = R.string.joined
+                )
 
-                ) {
-                    Text(
-                        text = "Đã tham gia",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                Button(
+                BaseButton(
                     onClick = {
                         showFriendDialog()
                     },
                     modifier = Modifier
                         .weight(0.5f)
                         .height(50.dp),
-                    shape = RoundedCornerShape(12.dp)
-
-                ) {
-
-                    Text(
-                        text = "Mời",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                    radius = 12,
+                    textSize = 16,
+                    title = R.string.invite
+                )
             } else if (group.statusRequest == "PENDING") {
-
-                Button(
+                BaseButton(
                     onClick = {
                         showResponse()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(
-                        text = "Phản hồi",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                    radius = 12,
+                    textSize = 16,
+                    title = R.string.response
+                )
             } else {
-                Button(
-                    onClick = {
 
+                BaseButton(
+                    onClick = {
+                        showFriendDialog()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(
-                        text = "Tham gia",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                    radius = 12,
+                    textSize = 16,
+                    title = R.string.join
+                )
             }
         }
     }

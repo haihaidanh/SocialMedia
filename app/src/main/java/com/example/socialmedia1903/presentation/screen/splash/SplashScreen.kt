@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.socialmedia1903.R
+import com.example.socialmedia1903.presentation.navigation.Screen
 import com.example.socialmedia1903.presentation.screen.login.LogInViewModel
 
 @Composable
@@ -30,14 +31,14 @@ fun SplashScreen(
     val authState by logInViewModel.authState.collectAsState()
     when (authState) {
         AuthState.LoggedIn -> {
-            navController.navigate("home") {
-                popUpTo("splash") { inclusive = true }
+            navController.navigate(Screen.Home.route) {
+                popUpTo(Screen.Splash.route) { inclusive = true }
             }
         }
 
         AuthState.NotLoggedIn -> {
-            navController.navigate("login") {
-                popUpTo("splash") { inclusive = true }
+            navController.navigate(Screen.Login.route) {
+                popUpTo(Screen.Splash.route) { inclusive = true }
             }
         }
 

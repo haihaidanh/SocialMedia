@@ -40,7 +40,8 @@ class PostRepositoryImpl @Inject constructor(
             "contentType" to post.contentType,
             "anonymous" to post.anonymous,
             "visibility" to post.visibility.name,
-            "images" to images
+            "images" to images,
+            "background" to post.background
         )
         Log.d("hai", images.joinToString(","))
         val request = OneTimeWorkRequestBuilder<CreatePostWorker>()

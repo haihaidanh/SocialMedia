@@ -23,5 +23,6 @@ data class PostResponse(
     val Likes: List<LikeResponse> = emptyList(),
     val Media: List<MediaResponse> = emptyList(),
     val Group: GroupInfoResponse? = null,
-    val isOwnPost: Boolean = false
+    val isOwnPost: Boolean = false,
+    val background: String? = null
 )

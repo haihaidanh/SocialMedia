@@ -1,5 +1,6 @@
 package com.example.socialmedia1903.data.mapper
 
+import android.util.Log
 import com.example.socialmedia1903.data.dto.request.PostRequest
 import com.example.socialmedia1903.data.dto.response.CommentResponse
 import com.example.socialmedia1903.data.dto.response.DetailPostResponse
@@ -63,7 +64,8 @@ object HaiMapper {
             type = this.type,
             contentType = this.contentType,
             anonymous = this.anonymous,
-            visibility = this.visibility
+            visibility = this.visibility,
+            background = this.background
         )
     }
 
@@ -150,6 +152,7 @@ object HaiMapper {
     }
 
     fun NotificationResponse.toNotification(): Notification {
+        Log.d("hai", "toNotification: $this")
         return Notification(
             id = this.id,
             userId = this.userId,
@@ -193,7 +196,8 @@ object HaiMapper {
             commentCount = this.commentCount,
             sharedCount = this.sharedCount,
             group = this.Group?.toGroupInfo(),
-            isOwnPost = this.isOwnPost
+            isOwnPost = this.isOwnPost,
+            background = this.background
         )
     }
 

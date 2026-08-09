@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,8 +24,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.socialmedia1903.R
 import com.example.socialmedia1903.data.dto.response.NotificationResponse
@@ -32,43 +37,50 @@ import com.example.socialmedia1903.domain.model.Notification
 
 @Composable
 fun LikePostItem(
-    notificationResponse: Notification,
+    notification: Notification,
     onClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White)
+            .clip(
+                RoundedCornerShape(12.dp)
+            )
             .clickable {
                 onClick()
             }
+            .background(
+                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(12.dp)
+            )
+
     ) {
 
-        // 🔹 Header
         Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier
+                .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(50.dp)
+                    .size(48.dp)
             ) {
             AsyncImage(
-                model = notificationResponse.user.avatarUrl,
+                model = notification.user.avatarUrl,
                 contentDescription = null,
                 modifier = Modifier
-                    .size(35.dp)
+                    .size(32.dp)
                     .clip(CircleShape)
                     .align(Alignment.Center)
             )
-                val image = when(notificationResponse.likeType){
+                val image = when(notification.likeType){
                     "like" -> R.drawable.like_done
                     "love" -> R.drawable.love
                     "haha" -> R.drawable.haha
                     "wow" -> R.drawable.wow
                     "sad" -> R.drawable.sad
                     "angry" -> R.drawable.angry
-                    else -> R.drawable.like
+                    else -> R.drawable.like_done
                 }
                 Box(
                     contentAlignment = Alignment.Center,
@@ -78,7 +90,9 @@ fun LikePostItem(
                     Image(
                         painter = painterResource(image),
                         contentDescription = null,
-                        colorFilter = ColorFilter.tint(Color.White),
+                        colorFilter = ColorFilter.tint(
+                            color = MaterialTheme.colorScheme.surface
+                        ),
                         modifier = Modifier
                             .size(22.dp)
                     )
@@ -97,11 +111,21 @@ fun LikePostItem(
             Column {
                 Row {
                     Text(
-                        text = notificationResponse.user.name,
-                        fontWeight = FontWeight.Bold
+                        text = notification.user.name,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontSize = 12.sp
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = "đã thích bài viết của bạn: "+(notificationResponse.postContent ?: ""), maxLines = 1)
+                    Text(
+                        text = stringResource(
+                            R.string.like_noti,
+                            (notification.postContent ?: "")),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontSize = 12.sp
+                    )
                 }
             }
         }

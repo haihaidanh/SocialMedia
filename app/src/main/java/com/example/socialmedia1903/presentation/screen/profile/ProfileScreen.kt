@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,8 +42,6 @@ import com.example.socialmedia1903.R
 import com.example.socialmedia1903.domain.enums.InvitationStatus
 import com.example.socialmedia1903.domain.enums.InvitationType
 import com.example.socialmedia1903.presentation.screen.dashboard.DashboardViewModel
-import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItem
-import com.example.socialmedia1903.presentation.screen.dashboard.post.PostItemView
 
 
 @Composable
@@ -280,15 +276,18 @@ fun ProfileScreen(
                     .padding(10.dp)
             )
             Log.d("hai", "posts: ${posts.size}")
-            posts.forEach { post ->
-                userId?.let { userId ->
-                    PostItemView(
-                        post = post,
-                        navController = navController,
-                        userId = userId
-                    )
-                }
-            }
+//            posts.forEach { post ->
+//                userId?.let { userId ->
+//                    PostItemView(
+//                        post = post,
+//                        userId = userId,
+//                        onCommentClick = {
+//
+//                        },
+//                        modifier = Modifier
+//                    )
+//                }
+//            }
 
         }
     }

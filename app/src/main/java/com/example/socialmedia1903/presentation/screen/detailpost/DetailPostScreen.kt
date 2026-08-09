@@ -1,6 +1,5 @@
 package com.example.socialmedia1903.presentation.screen.detailpost
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,13 +23,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -45,56 +44,53 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.socialmedia1903.R
-import com.example.socialmedia1903.data.dto.response.PostResponse
 import com.example.socialmedia1903.domain.enums.PostType
-import com.example.socialmedia1903.domain.enums.ReactionType
 import com.example.socialmedia1903.domain.model.Post
+import com.example.socialmedia1903.presentation.core.post.getIcon
 
 
 @Composable
 fun DetailPostScreen(
-    postId: String?,
-    onBack: () -> Unit,
-    postViewModel: PostViewModel = hiltViewModel()
+    navController: NavController,
+    postViewModel: PostViewModel
 ) {
-
-    LaunchedEffect(Unit) {
-        postId?.let { postViewModel.getDetailPost(it) }
-    }
+    val detailPost by postViewModel.post.collectAsState()
     val comments by postViewModel.comments.collectAsState()
-    LaunchedEffect(comments) {
-        postId?.let { postViewModel.getAllComment(it) }
-    }
-    LaunchedEffect(Unit) {
-        postId?.let { postViewModel.start(it) }
-    }
 
-    val post by postViewModel.post.collectAsState()
-
-    val icon = if (post.likes.isEmpty()) {
+    val icon = if (detailPost?.likes.isNullOrEmpty()) {
         R.drawable.like
     } else {
-        ReactionType.entries.find { it.title == post.likes[0].type }?.icon ?: R.drawable.like
+        getIcon(detailPost?.likes?.first()!!.type)
     }
 
-    val likeIcon by remember { mutableStateOf(icon) }
+    val likeIcon by remember { mutableIntStateOf(icon) }
 
-    Log.d("VM", comments.toString())
+
+    LaunchedEffect(Unit) {
+        detailPost?.let {
+            postViewModel.getAllComment(it.id)
+            postViewModel.start(it.id)
+        }
+
+    }
+
     val scrollState = rememberScrollState()
 
-    Scaffold(
-        topBar = {
-            Header(post, onBack)
-        },
-    ) { padding ->
-
-        Column (
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        detailPost?.let {
+            Header(
+                post = it,
+                onBack = { navController.popBackStack() })
+        }
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
         ) {
             ConstraintLayout(
                 modifier = Modifier
@@ -123,20 +119,29 @@ fun DetailPostScreen(
                             .height(200.dp)
                             .background(Color.LightGray)
                     ) {
-                        when (post.type) {
-                            PostType.MEDIA -> {
-                                Text(
-                                    text = post.content,
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White,
-                                    modifier = Modifier.align(Alignment.Center)
-                                )
-                            }
-                            PostType.TEXT -> {
+                        detailPost?.let { detailPost ->
+                            when (detailPost.type) {
+                                PostType.MEDIA -> {
+                                    detailPost.content?.let {
+                                        Text(
+                                            text = it,
+                                            fontSize = 20.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.White,
+                                            modifier = Modifier.align(Alignment.Center)
+                                        )
+                                    }
 
+                                }
+
+                                PostType.TEXT -> {
+
+                                }
+
+                                else -> {}
                             }
                         }
+
                     }
 
                     Row(
@@ -148,11 +153,19 @@ fun DetailPostScreen(
                         Image(
                             painter = painterResource(likeIcon),
                             contentDescription = null,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier
+                                .size(20.dp)
                                 .padding(end = 10.dp)
                         )
-                        Text(post.likeCount.toString(), fontSize = 14.sp)
+                        detailPost?.let { post ->
+                            Text(
+                                text = post.likeCount.toString(),
+                                fontSize = 14.sp
+                            )
+                        }
+
                         Spacer(modifier = Modifier.width(8.dp))
+
                         Image(
                             painter = painterResource(R.drawable.share),
                             contentDescription = null,
@@ -179,7 +192,6 @@ fun DetailPostScreen(
                     }
                 }
 
-                // 🔥 INPUT
                 TypeComment(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -190,7 +202,12 @@ fun DetailPostScreen(
                             end.linkTo(parent.end)
                         },
                     onSend = { text ->
-                        postId?.let { postViewModel.commentPost(it, null, text) }
+                        detailPost?.let { detailPost ->
+                            postViewModel.commentPost(detailPost.id,
+                                null,
+                                text
+                            )
+                        }
                     }
                 )
             }
@@ -260,7 +277,7 @@ fun Header(
 
         // Back button
         Icon(
-            painter = painterResource(R.drawable.baseline_arrow_back_ios_new_24),
+            painter = painterResource(R.drawable.back),
             contentDescription = null,
             modifier = Modifier
                 .clickable { onBack() }
@@ -294,3 +311,23 @@ fun Header(
     }
 }
 
+
+val appColors = listOf(
+    // 1. Nhóm màu chủ đạo (Brand & Primary)
+    Color(0xFF3B82F6), // Xanh Royal (Primary)
+    Color(0xFF10B981), // Xanh Mint (Secondary)
+    Color(0xFF8B5CF6), // Tím Trendy (Accent)
+
+    // 2. Nhóm màu trạng thái (System & Feedback)
+    Color(0xFFEF4444), // Đỏ Coral (Error/Danger)
+    Color(0xFFF59E0B), // Cam Amber (Warning)
+
+    // 3. Nhóm màu nền & Trung tính (Neutral)
+    Color(0xFFF9FAFB), // Trắng Tuyết (Light Background)
+    Color(0xFF111827), // Xám Charcoal (Dark Background)
+    Color(0xFF1F2937), // Xám Slate (Card/Surface)
+
+    // 4. Nhóm màu Text & Biên (Typography & Borders)
+    Color(0xFF1F2937), // Đen Nhám (Primary Text)
+    Color(0xFF9CA3AF)  // Xám Cool Gray (Secondary Text/Border)
+)

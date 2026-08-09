@@ -1,13 +1,16 @@
 package com.example.socialmedia1903.presentation.screen.notification
 
 import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -15,19 +18,23 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.socialmedia1903.R
+import com.example.socialmedia1903.data.utils.AppUtils.fontOpenSansBoldHelper
 import com.example.socialmedia1903.domain.enums.InvitationType
 import com.example.socialmedia1903.domain.enums.NotificationType
-import com.example.socialmedia1903.presentation.screen.dashboard.CustomBottomBarWithFab
+import com.example.socialmedia1903.presentation.core.modifier.staticStatusBarPadding
 import com.example.socialmedia1903.presentation.screen.profile.InvitationViewModel
 
 @Composable
 fun NotificationScreen(
     navController: NavController,
     notificationViewModel: NotificationViewModel = hiltViewModel(),
-    invitationViewModel: InvitationViewModel = hiltViewModel(),
-    padding: PaddingValues
+    invitationViewModel: InvitationViewModel = hiltViewModel()
 ) {
 
     val notifications by notificationViewModel.notifications.collectAsState()
@@ -36,42 +43,66 @@ fun NotificationScreen(
         notificationViewModel.getNotifications()
     }
 
-    Scaffold (
-        bottomBar = {
-            CustomBottomBarWithFab(
-                navController,
-                onClick = {
-
-                }
+    Column(
+        modifier = Modifier.fillMaxSize()
+            .background(
+                color = MaterialTheme.colorScheme.background
             )
-        },
-        modifier = Modifier.padding(padding)
-    ){ paddingValues ->
-        if(notifications.isEmpty()){
+            .padding(10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .staticStatusBarPadding()
+        ) {
+            Text(
+                text = stringResource(id = R.string.notification),
+                modifier = Modifier
+                    .align(Alignment.Center),
+                fontSize = 16.sp,
+                fontFamily = fontOpenSansBoldHelper(),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+
+        if (notifications.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "No notifications")
+                Text(
+                    text = stringResource(id = R.string.no_notifications),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 16.sp,
+                    fontFamily = fontOpenSansBoldHelper(),
+                )
             }
-        }else{
+        } else {
             LazyColumn(
                 modifier = Modifier
-                    .padding(paddingValues)
-                    .fillMaxSize()
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                items(notifications) {notification ->
-                    Log.d("hai", notification.toString())
-                    when(notification.type){
+                items(notifications) { notification ->
+                    when (notification.type) {
                         NotificationType.ADD_FRIEND -> {
                             AddFriendItem(
                                 notification,
                                 onAccept = {
-                                    invitationViewModel.acceptInvitation(InvitationType.ADD_FRIEND, userId = notification.userId)
+                                    invitationViewModel.acceptInvitation(
+                                        InvitationType.ADD_FRIEND,
+                                        userId = notification.userId
+                                    )
                                 },
                                 onReject = {
-                                    invitationViewModel.rejectInvitation(InvitationType.ADD_FRIEND, userId = notification.userId)
+                                    invitationViewModel.rejectInvitation(
+                                        InvitationType.ADD_FRIEND,
+                                        userId = notification.userId
+                                    )
                                 },
                                 onItemClick = {
                                     navController.navigate("profile/${notification.userId}")
@@ -88,6 +119,7 @@ fun NotificationScreen(
                                 }
                             )
                         }
+
                         NotificationType.COMMENT -> {
                             CommentPostItem(
                                 notification,
@@ -96,6 +128,7 @@ fun NotificationScreen(
                                 }
                             )
                         }
+
                         NotificationType.SHARE -> {
                             SharePostItem(
                                 notification,
@@ -104,6 +137,7 @@ fun NotificationScreen(
                                 }
                             )
                         }
+
                         NotificationType.FOLLOW -> TODO()
                         NotificationType.INVITE_GROUP -> {
                             InviteGroupItem(
@@ -112,7 +146,11 @@ fun NotificationScreen(
                                 notification.groupName ?: "",
                                 onAccept = {
                                     Log.d("hai", notification.groupId ?: "")
-                                    invitationViewModel.acceptInvitation(InvitationType.INVITE_GROUP, notification.groupId, notification.userId)
+                                    invitationViewModel.acceptInvitation(
+                                        InvitationType.INVITE_GROUP,
+                                        notification.groupId,
+                                        notification.userId
+                                    )
                                 },
                                 onView = {
                                     navController.navigate("group/${notification.groupId}")
@@ -120,16 +158,19 @@ fun NotificationScreen(
                             )
 
                         }
+
                         NotificationType.ACCEPT -> {
 
                         }
+
                         NotificationType.REJECT -> TODO()
+                        NotificationType.POST -> {
+
+                        }
                     }
                 }
+            }
+
         }
-
-    }
-
-
     }
 }

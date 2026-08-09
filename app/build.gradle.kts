@@ -5,7 +5,7 @@ plugins {
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
     id("com.google.gms.google-services")
-    id("kotlin-kapt")
+    id("org.jetbrains.kotlin.kapt")
 }
 
 android {
@@ -23,15 +23,14 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-
-        ksp {
-            arg("room.schemaLocation", "$projectDir/schemas")
-        }
-        kapt {
-            correctErrorTypes = true
-        }
     }
 
+    ksp {
+        arg("room.schemaLocation", "$projectDir/schemas")
+    }
+    kapt {
+        correctErrorTypes = true
+    }
 
     buildTypes {
         release {
@@ -102,7 +101,7 @@ dependencies {
 
     val hiltVersion = "2.56"
     implementation("com.google.dagger:hilt-android:$hiltVersion")
-    //ksp("com.google.dagger:hilt-android-compiler:$hiltVersion")
+    // ksp("com.google.dagger:hilt-android-compiler:$hiltVersion") // Not used — kapt handles Hilt below
 
     // Hilt Navigation Compose (Required for hiltViewModel() in Compose)
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
@@ -137,9 +136,9 @@ dependencies {
     implementation("io.socket:socket.io-client:2.1.0")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.1.0")
-    implementation(platform("com.google.firebase:firebase-bom:34.11.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
     implementation("com.google.firebase:firebase-analytics")
-    implementation("com.google.firebase:firebase-messaging:23.4.1")
+    implementation("com.google.firebase:firebase-messaging:22.0.0")
 
     implementation("androidx.media3:media3-exoplayer:1.2.0")
     implementation("androidx.media3:media3-ui:1.2.0")
@@ -168,4 +167,6 @@ dependencies {
     //ksp("androidx.hilt:hilt-compiler:$hiltExtensionVersion")
     kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
     kapt("androidx.hilt:hilt-compiler:$hiltExtensionVersion")
+
+    implementation("com.github.skydoves:colorpicker-compose:1.1.0")
 }

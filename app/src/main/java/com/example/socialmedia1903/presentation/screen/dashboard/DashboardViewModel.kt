@@ -2,13 +2,10 @@ package com.example.socialmedia1903.presentation.screen.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.example.socialmedia1903.data.remote.AppService
-import com.example.socialmedia1903.data.source.PostPagingSource
 import com.example.socialmedia1903.domain.model.Post
+import com.example.socialmedia1903.domain.repository.PostRepository
 import com.example.socialmedia1903.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -20,7 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val apiService: AppService,
+    private val postRepository: PostRepository
 ) : ViewModel() {
 
     private val _userId = MutableStateFlow<String?>(null)
@@ -39,14 +36,9 @@ class DashboardViewModel @Inject constructor(
     val username: StateFlow<String?> = _username
 
 
-    val posts: Flow<PagingData<Post>> = Pager(
-        config = PagingConfig(
-            pageSize = 2,
-            initialLoadSize = 2,
-            enablePlaceholders = false
-        ),
-        pagingSourceFactory = { PostPagingSource(apiService) }
-    ).flow.cachedIn(viewModelScope)
+    val posts: Flow<PagingData<Post>> = postRepository
+        .getPosts().cachedIn(viewModelScope)
+
 
     fun logOut() {
         viewModelScope.launch {

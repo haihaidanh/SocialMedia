@@ -1,9 +1,7 @@
 package com.example.socialmedia1903.data.mapper
 
 import android.util.Log
-import com.example.socialmedia1903.data.dto.request.PostRequest
 import com.example.socialmedia1903.data.dto.response.CommentResponse
-import com.example.socialmedia1903.data.dto.response.DetailPostResponse
 import com.example.socialmedia1903.data.dto.response.FriendshipResponse
 import com.example.socialmedia1903.data.dto.response.GroupInfoResponse
 import com.example.socialmedia1903.data.dto.response.GroupResponse
@@ -19,7 +17,7 @@ import com.example.socialmedia1903.data.dto.response.SearchItemResponse
 import com.example.socialmedia1903.data.dto.response.SearchResultResponse
 import com.example.socialmedia1903.data.dto.response.SignUpResponse
 import com.example.socialmedia1903.data.dto.response.UserResponse
-import com.example.socialmedia1903.data.mapper.HaiMapper.toGroupInfo
+import com.example.socialmedia1903.data.local.enitity.PostEntity
 import com.example.socialmedia1903.domain.model.Comment
 import com.example.socialmedia1903.domain.model.Friendship
 import com.example.socialmedia1903.domain.model.Group
@@ -53,19 +51,6 @@ object HaiMapper {
         return SignUp(
             success = errCode == 0,
             message = message
-        )
-    }
-
-    fun Post.toPostRequest(): PostRequest {
-        return PostRequest(
-            id = this.id,
-            groupId = this.groupId,
-            content = this.content,
-            type = this.type,
-            contentType = this.contentType,
-            anonymous = this.anonymous,
-            visibility = this.visibility,
-            background = this.background
         )
     }
 
@@ -272,4 +257,15 @@ object HaiMapper {
         return this.map { it.toPost() }
     }
 
+    fun PostEntity.toPost() = Post(
+        id, authorId, groupId, content, type, contentType, anonymous,
+        visibility, likeCount, commentCount, sharedCount, createdAt, updatedAt,
+        user, comments, likes, media, group, isOwnPost, background
+    )
+
+    fun Post.toEntity(page: Int, order: Int) = PostEntity(
+        id, authorId, groupId, content, type, contentType, anonymous,
+        visibility, likeCount, commentCount, sharedCount, createdAt, updatedAt,
+        user, comments, likes, media, group, isOwnPost, background, page, order
+    )
 }

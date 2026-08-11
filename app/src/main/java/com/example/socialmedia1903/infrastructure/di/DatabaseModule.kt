@@ -27,4 +27,16 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideImageDao(appDatabase: AppDatabase) = appDatabase.imageDao()
+
+    @Provides
+    @Singleton
+    fun providePostDao(appDatabase: AppDatabase) = appDatabase.postDao()
+
+    @Provides
+    @Singleton
+    fun provideRemoteKeyDao(appDatabase: AppDatabase) = appDatabase.remoteKeyDao()
+
+    @Provides
+    @Singleton
+    fun provideDbTrackingDao(appDatabase: AppDatabase) = appDatabase.dbTrackingDao()
 }

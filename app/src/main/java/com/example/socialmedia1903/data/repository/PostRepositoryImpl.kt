@@ -2,14 +2,25 @@ package com.example.socialmedia1903.data.repository
 
 import android.content.Context
 import android.util.Log
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
 import androidx.work.Constraints
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.example.socialmedia1903.data.dto.request.EditProfileRequest
+import com.example.socialmedia1903.data.local.enitity.PostEntity
+import com.example.socialmedia1903.data.local.room.AppDatabase
+import com.example.socialmedia1903.data.mapper.HaiMapper.toEntity
+import com.example.socialmedia1903.data.mapper.HaiMapper.toPost
+import com.example.socialmedia1903.data.remote.AppService
 import com.example.socialmedia1903.data.remote.SocketManager
 import com.example.socialmedia1903.data.source.LocalDataSource
+import com.example.socialmedia1903.data.source.PostRemoteMediator
 import com.example.socialmedia1903.data.source.RemoteDataSource
 import com.example.socialmedia1903.data.worker.CreatePostWorker
 import com.example.socialmedia1903.domain.model.Comment
@@ -17,6 +28,8 @@ import com.example.socialmedia1903.domain.model.Like
 import com.example.socialmedia1903.domain.model.Post
 import com.example.socialmedia1903.domain.repository.PostRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import org.json.JSONObject
 import java.util.UUID
 import javax.inject.Inject
@@ -25,7 +38,9 @@ class PostRepositoryImpl @Inject constructor(
     @ApplicationContext val context: Context,
     private val localDataSource: LocalDataSource,
     private val remoteDataSource: RemoteDataSource,
-    private val socketManager: SocketManager
+    private val socketManager: SocketManager,
+    private val appDatabase: AppDatabase,
+    private val appService: AppService
 ): PostRepository {
     override suspend fun enqueuePost(post: Post): UUID {
 
@@ -91,6 +106,19 @@ class PostRepositoryImpl @Inject constructor(
 
     override suspend fun undoDeletePost(postId: String) {
         remoteDataSource.undoDeletePost(postId)
+    }
+
+    @OptIn(ExperimentalPagingApi::class)
+    override fun getPosts(): Flow<PagingData<Post>> {
+        return Pager(
+            config = PagingConfig(pageSize = 2),
+            remoteMediator = PostRemoteMediator(appDatabase, appService),
+            pagingSourceFactory = { appDatabase.postDao().pagingSource() }
+        ).flow.map { pagingData ->
+            pagingData.map { post ->
+                post.toPost()
+            }
+        }
     }
 
 }

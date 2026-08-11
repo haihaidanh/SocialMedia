@@ -3,23 +3,19 @@ package com.example.socialmedia1903.presentation.screen.signup
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -27,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -36,13 +33,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.socialmedia1903.R
-import com.example.socialmedia1903.presentation.screen.login.InputComponent
+import com.example.socialmedia1903.data.utils.AppUtils.fontOpenSansMediumHelper
+import com.example.socialmedia1903.presentation.component.BaseButton
+import com.example.socialmedia1903.presentation.component.Header
+import com.example.socialmedia1903.presentation.core.modifier.staticStatusBarPadding
+import com.example.socialmedia1903.presentation.screen.login.AuthInput
 
 @Composable
 fun SignUpScreen(
@@ -54,14 +56,14 @@ fun SignUpScreen(
     var confirmPassword by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
 
-    var selectedGender by remember { mutableStateOf("Nam") }
+    var selectedGender by remember { mutableIntStateOf(R.string.male) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     val isSignUpSuccess by signUpViewModel.isSignUpSuccess.collectAsState()
     val context = LocalContext.current
 
     val err by signUpViewModel.error.collectAsState()
 
-    if(isSignUpSuccess){
+    if (isSignUpSuccess) {
         navController.navigate("login")
     }
 
@@ -74,34 +76,31 @@ fun SignUpScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .background(
+                MaterialTheme.colorScheme.background
+            )
+            .padding(10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        // Back icon
-        Image(
-            painter = painterResource(R.drawable.back),
-            contentDescription = null,
+        Header(
+            title = stringResource(R.string.sign_up),
             modifier = Modifier
-                .size(30.dp)
-                .clickable {
-                    navController.popBackStack()
-                }
+                .fillMaxWidth()
+                .staticStatusBarPadding(),
+            onBackClick = {
+                navController.popBackStack()
+            }
         )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Đăng ký",
-            style = MaterialTheme.typography.titleLarge
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
 
         Box(
             modifier = Modifier
                 .size(120.dp)
                 .clip(CircleShape)
                 .background(Color.LightGray)
-                .clickable { launcher.launch("image/*") },
+                .clickable {
+                    launcher.launch("image/*")
+                },
             contentAlignment = Alignment.Center
         ) {
             if (imageUri != null) {
@@ -119,39 +118,46 @@ fun SignUpScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        InputComponent(
-            placeholder = "Tên hiển thị",
-            onValueChange = { username = it },
-            icon = R.drawable.pwd_login,
-            error = err.errUserName
+        AuthInput(
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = stringResource(R.string.name),
+            onSearchQueryChange = { name = it },
+            icon = R.drawable.people_icon,
+            searchQuery = name,
         )
 
-        InputComponent(
-            placeholder = "Tên đăng nhập",
-            onValueChange = { name = it },
-            icon = R.drawable.pwd_login,
-            error = err.errName
+        AuthInput(
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = stringResource(R.string.username),
+            onSearchQueryChange = { username = it },
+            icon = R.drawable.people_icon,
+            searchQuery = username,
         )
 
-        InputComponent(
-            placeholder = "Mật khẩu",
-            onValueChange = { password = it },
-            isPwd = true,
+        AuthInput(
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = stringResource(R.string.password),
+            onSearchQueryChange = { password = it },
             icon = R.drawable.pwd_login,
-            error = err.errPassword
+            searchQuery = password,
+            password = true
         )
 
-        InputComponent(
-            placeholder = "Xác nhận mật khẩu",
-            onValueChange = { confirmPassword = it },
-            isPwd = true,
+        AuthInput(
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = stringResource(R.string.confirm_password),
+            onSearchQueryChange = { confirmPassword = it },
             icon = R.drawable.pwd_login,
-            error = err.errConfirmPassword
+            searchQuery = confirmPassword,
+            password = true
         )
 
-        Text(text = "Giới tính")
+        Text(
+            text = stringResource(R.string.gender),
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontFamily = fontOpenSansMediumHelper(),
+        )
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -159,24 +165,33 @@ fun SignUpScreen(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 RadioButton(
-                    selected = selectedGender == "Nam",
-                    onClick = { selectedGender = "Nam" }
+                    selected = selectedGender == R.string.male,
+                    onClick = { selectedGender = R.string.male }
                 )
-                Text("Nam")
+                Text(
+                    text = stringResource(R.string.male),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontFamily = fontOpenSansMediumHelper(),
+                    fontSize = 12.sp
+                    )
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 RadioButton(
-                    selected = selectedGender == "Nữ",
-                    onClick = { selectedGender = "Nữ" }
+                    selected = selectedGender == R.string.female,
+                    onClick = { selectedGender = R.string.female }
                 )
-                Text("Nữ")
+                Text(
+                    text = stringResource(R.string.female),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontFamily = fontOpenSansMediumHelper(),
+                    fontSize = 12.sp
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(
+        BaseButton(
+            title = R.string.sign_up,
             onClick = {
                 signUpViewModel.signUp(
                     imageUri ?: Uri.EMPTY,
@@ -184,13 +199,12 @@ fun SignUpScreen(
                     name,
                     password,
                     confirmPassword,
-                    if(selectedGender == "Nam") 1 else 2,
+                    if (selectedGender == R.string.male) 1 else 2,
                     context
                 )
             },
             modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Đăng ký")
-        }
+        )
+
     }
 }

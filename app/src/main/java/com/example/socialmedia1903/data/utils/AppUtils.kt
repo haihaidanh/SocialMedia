@@ -1,5 +1,6 @@
 package com.example.socialmedia1903.data.utils
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import androidx.compose.ui.text.font.Font
@@ -49,5 +50,14 @@ object AppUtils {
         return FontFamily(
             Font(R.font.opensans_medium)
         )
+    }
+
+    @SuppressLint("DefaultLocale")
+    fun formatDuration(durationMs: Long): String {
+        val totalSeconds = durationMs / 1000
+        val minutes = totalSeconds / 60
+        val seconds = totalSeconds % 60
+
+        return String.format("%02d:%02d", minutes, seconds)
     }
 }

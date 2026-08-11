@@ -267,9 +267,7 @@ fun MainScreen() {
                 onVideoRecorded = { uri ->
                     navController.navigate(Screen.Preview.createScreen(videoUri = uri.toString()))
                 },
-                onBack = {
-                    navController.popBackStack()
-                }
+                navController = navController
             )
         }
 

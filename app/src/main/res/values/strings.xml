@@ -91,4 +91,11 @@
     <string name="result_search">Kết quả tìm kiếm</string>
     <string name="add_friend">Kết bạn</string>
     <string name="sent">Đã gửi</string>
+    <string name="sign_up">Đăng ký</string>
+    <string name="name">Name</string>
+    <string name="gender">Gender</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="camera_requiring">Đang yêu cầu quyền camera...</string>
 </resources>
